@@ -1,0 +1,9 @@
+StorageSectionResult {
+    id: ID!
+    name: String!
+    attributes: [String!]!
+}
+
+mutation {
+    createStorageSection(name: String!, attributes: [String!]!): StorageSectionResult!
+}
