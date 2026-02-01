@@ -1,3 +1,17 @@
 spring:
   application:
     name: SecureStorage
+  autoconfigure:
+    exclude:
+      # Disable all Spring AI auto-configurations to focus on CRUD operations
+      - org.springframework.ai.vectorstore.weaviate.autoconfigure.WeaviateVectorStoreAutoConfiguration
+      - org.springframework.ai.autoconfigure.google.genai.GoogleGenAiAutoConfiguration
+      - org.springframework.ai.model.google.genai.autoconfigure.chat.GoogleGenAiChatAutoConfiguration
+      - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiEmbeddingAutoConfiguration
+  # AI configuration commented out - uncomment when ready to use AI features
+  # ai:
+  #   google:
+  #     genai:
+  #       api-key: ${GEMINI_API_KEY}
+  #       project-id: ${GOOGLE_GEN_AI_PROJECT_ID}
+  #       chat.options.model: gemini-2.5-flash

@@ -11,3 +11,12 @@ services:
       - xpack.security.enabled=false
     ports:
       - "9200:9200"
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: securstorage
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
