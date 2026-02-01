@@ -9,7 +9,11 @@ import com.example.SecureStorage.domain.entity.StorageSection;
 import com.example.SecureStorage.domain.entity.StorageSectionDocument;
 import com.example.SecureStorage.domain.repository.StorageSectionElasticsearchRepository;
 import com.example.SecureStorage.domain.repository.StorageSectionRepository;
-import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionVo;
+import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionDocumentMapper;
+import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionInputVo;
+import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionMapper;
+import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionResVo;
+import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionResVoMapper;
 
 @Service
 public class StorageSectionServiceImpl implements StorageSectionService {
@@ -21,24 +25,15 @@ public class StorageSectionServiceImpl implements StorageSectionService {
     private StorageSectionElasticsearchRepository esRepository;
 
     @Override
-    public StorageSectionVo createStorageSection(String name, Map<String, String> attributes) {
-        // Create JPA entity
-        StorageSection section = new StorageSection();
-        section.setName(name);
-        section.setAttributes(attributes);
+    public StorageSectionResVo createStorageSection(StorageSectionInputVo inputVo) {
+        StorageSection section = StorageSectionMapper.mapFrom(inputVo);
 
-        // Save to JPA
         StorageSection saved = jpaRepository.save(section);
 
-        // Index to Elasticsearch
-        StorageSectionDocument doc = new StorageSectionDocument();
-        doc.setId(saved.getId().toString());
-        doc.setName(saved.getName());
-        doc.setAttributes(saved.getAttributes());
+        StorageSectionDocument doc = StorageSectionDocumentMapper.mapFrom(saved);
         esRepository.save(doc);
 
-        // Return VO
-        return new StorageSectionVo(saved.getId(), saved.getName(), saved.getAttributes());
+        return StorageSectionResVoMapper.mapFrom(saved);
     }
 
 }
