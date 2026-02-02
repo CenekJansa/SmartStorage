@@ -15,7 +15,7 @@ public class StorageSectionServiceKit {
     @Setter
     @Builder
     public static class StorageSectionResVo {
-        private String id;
+        private Long id;
         private String name;
         private List<String> attributes;
     }
@@ -52,7 +52,7 @@ public class StorageSectionServiceKit {
     public static class StorageSectionResVoMapper {
         public static StorageSectionResVo mapFrom(StorageSection section) {
             return StorageSectionResVo.builder()
-                    .id(section.getId().toString())
+                    .id(section.getId())
                     .name(section.getName())
                     .attributes(section.getAttributes())
                     .build();

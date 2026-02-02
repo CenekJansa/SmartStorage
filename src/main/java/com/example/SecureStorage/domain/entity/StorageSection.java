@@ -22,6 +22,7 @@ public class StorageSection extends BaseEntity {
     @Column(name = "attributes_json", columnDefinition = "TEXT")
     @Convert(converter = JsonListConverter.class)
     private List<String> attributes;
-    @OneToMany(mappedBy = "storageSection", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "storageSection",
+     cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<StorageItem> storageItems;
 }
