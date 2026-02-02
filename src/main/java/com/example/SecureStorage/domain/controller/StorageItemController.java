@@ -2,7 +2,6 @@ package com.example.SecureStorage.domain.controller;
 
 import java.util.Set;
 
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -20,12 +19,12 @@ public class StorageItemController {
 
     @QueryMapping
     public Set<StorageItemResult> listStorageItems(@Argument Long sectionId) {
-        return new HashSet<>();
+        return null;
     } 
 
     @QueryMapping
     public StorageItemResult getStorageItemDetail(@Argument Long id) {
-
+        
         return null;
     }
 }
