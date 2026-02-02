@@ -26,7 +26,7 @@ public class StorageItem extends BaseEntity {
     private Set<StorageItemAttachment> attachments;
     @Column(name = "metadata_json", columnDefinition = "TEXT")
     @Convert(converter = JsonMapConverter.class)
-    private Map<String, String> metadata;
+    private Map<String, Object> metadata;
     @JoinColumn(name = "storage_section_id", nullable = false)
     @ManyToOne
     private StorageSection storageSection;

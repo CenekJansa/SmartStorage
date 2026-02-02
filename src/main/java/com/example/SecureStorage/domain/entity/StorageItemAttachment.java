@@ -2,6 +2,8 @@ package com.example.SecureStorage.domain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
@@ -17,7 +19,10 @@ public class StorageItemAttachment extends BaseEntity {
     private String fullObjectName;
     @Column(nullable = false)
     private String bucketName;
-    @JoinColumn(name = "storage_item_id", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AttachmentStatus status = AttachmentStatus.PROCESSING;
+    @JoinColumn(name = "storage_item_id", nullable = true)
     @ManyToOne
     private StorageItem storageItem;
 }

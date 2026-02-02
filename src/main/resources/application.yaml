@@ -11,6 +11,13 @@ spring:
     secret-key: minioadmin
     bucket.name: securestorage-bucket
 
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
   # Database Configuration
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:securstorage}
@@ -34,16 +41,17 @@ spring:
 
   autoconfigure:
     exclude:
-      # Disable all Spring AI auto-configurations to focus on CRUD operations
+      # Disable vector store and embedding auto-configurations
       - org.springframework.ai.vectorstore.weaviate.autoconfigure.WeaviateVectorStoreAutoConfiguration
       - org.springframework.ai.autoconfigure.google.genai.GoogleGenAiAutoConfiguration
-      - org.springframework.ai.model.google.genai.autoconfigure.chat.GoogleGenAiChatAutoConfiguration
       - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiEmbeddingAutoConfiguration
 
-  # AI configuration commented out - uncomment when ready to use AI features
-  # ai:
-  #   google:
-  #     genai:
-  #       api-key: ${GEMINI_API_KEY}
-  #       project-id: ${GOOGLE_GEN_AI_PROJECT_ID}
-  #       chat.options.model: gemini-2.5-flash
+  # AI configuration for document processing
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+        project-id: ${GOOGLE_GEN_AI_PROJECT_ID:}
+        chat:
+          options:
+            model: gemini-2.0-flash-thinking-exp
