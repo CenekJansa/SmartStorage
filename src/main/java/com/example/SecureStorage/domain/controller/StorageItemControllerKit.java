@@ -19,4 +19,12 @@ public class StorageItemControllerKit {
         private Map<String, String> metadata;
     }
 
+    @Getter
+    @Setter
+    public static class UploadResult {
+        private Boolean success;
+        private Long attachmentId;
+        private String errorMessage;
+    }
+
 }

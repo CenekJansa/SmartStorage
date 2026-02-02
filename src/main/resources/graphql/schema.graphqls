@@ -1,7 +1,15 @@
+scalar Upload
+
 type StorageSectionResult {
     id: ID!
     name: String!
     attributes: [String!]!
+}
+
+type UploadResult {
+    success: Boolean!
+    attachmentId: ID
+    errorMessage: String
 }
 
 type Query {
@@ -12,4 +20,5 @@ type Query {
 
 type Mutation {
     createStorageSection(name: String!, attributes: [String!]!): StorageSectionResult!
+    uploadDocument(itemId: ID!, file: Upload!): UploadResult!
 }

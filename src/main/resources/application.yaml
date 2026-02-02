@@ -9,7 +9,7 @@ spring:
     url: http://localhost:9000
     access-key: minioadmin
     secret-key: minioadmin
-    buckett.name: securestorage-bucket
+    bucket.name: securestorage-bucket
 
   # Database Configuration
   datasource:
