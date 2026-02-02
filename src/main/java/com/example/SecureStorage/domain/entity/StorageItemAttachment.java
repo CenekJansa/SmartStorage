@@ -13,7 +13,10 @@ import lombok.Setter;
 public class StorageItemAttachment extends BaseEntity {
     @Column(nullable = false)
     private String fileName;
+    @Column(nullable = false)
     private String fullObjectName;
+    @Column(nullable = false)
+    private String bucketName;
     @JoinColumn(name = "storage_item_id", nullable = false)
     @ManyToOne
     private StorageItem storageItem;

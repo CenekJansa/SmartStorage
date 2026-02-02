@@ -44,13 +44,11 @@ public class StorageItemSericeImpl implements StorageItemService {
      * @return id of the attachment
      */
     @Override
-    public OperationResult<Long> uploadFile(@NotNull String fileName,
+    public OperationResult<Long> uploadFile(@NotNull Long sectionId, @NotNull String fileName,
         @NotNull byte[] fileData) {
         try {
-            // Generate unique object name for MinIO
             String uniqueObjectName = UUID.randomUUID().toString() + "_" + fileName;
 
-            // Upload file to MinIO
             ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
             minioClient.putObject(
                 PutObjectArgs.builder()
@@ -60,16 +58,14 @@ public class StorageItemSericeImpl implements StorageItemService {
                     .build()
             );
 
-            // Create StorageItemAttachment entity
             StorageItemAttachment attachment = new StorageItemAttachment();
             attachment.setFileName(fileName);
+            attachment.setBucketName(bucketName);
             attachment.setFullObjectName(uniqueObjectName);
 
-            // Save attachment to database
             StorageItemAttachment savedAttachment =
              storageItemAttachmentRepository.save(attachment);
 
-            // Return attachment ID
             return OperationResult.success(savedAttachment.getId());
 
         } catch (Exception e) {

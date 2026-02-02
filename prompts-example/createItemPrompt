@@ -1,0 +1,16 @@
+your task is to read content of the document and create a json object from it.
+
+the content of the file: 
+///
+text
+///
+
+based on the file fill in the json object. Pay attention to the data types.
+
+json object: {
+    "name": "name of the item",
+    "metadata": {
+        "key": "value"
+    }
+}
+

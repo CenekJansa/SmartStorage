@@ -22,12 +22,13 @@ public class StorageItemController {
     private StorageItemService storageItemService;
 
     @MutationMapping
-    public UploadResult uploadDocument(@Argument MultipartFile file) {
+    public UploadResult uploadDocument(@Argument Long sectionId, @Argument MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
             byte[] fileData = file.getBytes();
 
-            OperationResult<Long> result = storageItemService.uploadFile(fileName, fileData);
+            OperationResult<Long> result
+             = storageItemService.uploadFile(sectionId, fileName, fileData);
 
             UploadResult uploadResult = new UploadResult();
             uploadResult.setSuccess(result.isSuccess());

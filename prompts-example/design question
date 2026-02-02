@@ -1,0 +1,127 @@
+<thinking>
+The user has provided clear answers to my questions:
+
+1. **RabbitMQ** for async processing
+2. **Status field** on StorageItemAttachment (PROCESSING, COMPLETED, FAILED)
+3. **AI failure** → update status to FAILED, focus on making AI understand structure/types
+4. **Prompt structure** is clear - they showed me an example
+5. **Document needs to be in text format** - they're asking if this is a problem
+6. **Data flow correction**: Pass file data directly in async call (avoid extra IO), along with sectionId and attachmentId
+7. **Placeholder methods** are just for orientation, not binding
+
+Key points to address:
+- **Text extraction**: Need to handle PDF/image → text conversion. This could be a problem if they only have binary files. I should mention we need a text extraction service (Apache Tika, PDFBox, OCR for images, etc.)
+- **RabbitMQ setup**: Need to add dependencies, configure, create message producer/consumer
+- **Status enum**: Need to create an enum for attachment status
+- **Async flow**: Upload → Save to MinIO → Create attachment with PROCESSING status → Send message to RabbitMQ with (fileData, sectionId, attachmentId) → Consumer processes → AI call → Parse → Validate → Save StorageItem → Update attachment status
+
+Let me confirm understanding and point out the text extraction requirement.
+</thinking>
+
+**Everything is crystal clear!** Excellent architectural decisions. Let me address your question about text format and confirm the implementation plan:
+
+## 📄 **Document Text Extraction - Important Consideration**
+
+**Yes, we need text extraction**, but it's **solvable**. Here are the options:
+
+### **Option 1: Apache Tika (Recommended)**
+- **Pros**: Handles PDF, Word, Excel, images (with OCR), 1000+ formats
+- **Cons**: Adds dependency (~50MB)
+- **Implementation**: Extract text before sending to RabbitMQ
+
+### **Option 2: PDF-specific (PDFBox)**
+- **Pros**: Lightweight, PDF-focused
+- **Cons**: Only handles PDFs, no OCR for scanned documents
+
+### **Option 3: External Service**
+- **Pros**: Offloads processing
+- **Cons**: Additional infrastructure
+
+**My recommendation**: Use **Apache Tika** in the RabbitMQ consumer. Extract text → build prompt → call AI.
+
+---
+
+## 🎯 **Confirmed Implementation Plan**
+
+Based on your clarifications, here's what I'll implement:
+
+### **Phase 1: Data Model & Infrastructure**
+1. Add `status` enum field to `StorageItemAttachment` (PROCESSING, COMPLETED, FAILED)
+2. Add RabbitMQ dependencies to `pom.xml`
+3. Configure RabbitMQ in `application.yaml`
+4. Create RabbitMQ queue/exchange configuration
+
+### **Phase 2: Message Infrastructure**
+5. Create `DocumentProcessingMessage` DTO (fileData, sectionId, attachmentId, fileName)
+6. Create `RabbitMQProducer` service to send messages
+7. Create `DocumentProcessingConsumer` to receive messages
+
+### **Phase 3: Update Upload Flow**
+8. Modify `uploadFile` service to:
+   - Save to MinIO (keep existing logic)
+   - Create attachment with `status=PROCESSING`
+   - Send message to RabbitMQ with fileData, sectionId, attachmentId
+   - Return attachmentId immediately
+
+### **Phase 4: AI Processing Pipeline**
+9. Implement consumer logic:
+   - Extract text from fileData (Apache Tika)
+   - Fetch section structure (attributes)
+   - Build prompt with your template
+   - Call Gemini AI
+   - Parse JSON response
+   - Validate against section structure
+   - Create & save StorageItem
+   - Link attachment to StorageItem
+   - Update attachment status to COMPLETED/FAILED
+
+### **Phase 5: GraphQL Query for Status**
+10. Add query to check attachment processing status
+
+---
+
+## ✅ **Data Flow (Confirmed)**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 1. GraphQL uploadDocument(sectionId, file)                  │
+└────────────────────────┬────────────────────────────────────┘
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 2. StorageItemService.uploadFile()                          │
+│    - Upload to MinIO                                        │
+│    - Create StorageItemAttachment (status=PROCESSING)       │
+│    - Send RabbitMQ message (fileData, sectionId, attachId)  │
+│    - Return attachmentId                                    │
+└────────────────────────┬────────────────────────────────────┘
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 3. User receives UploadResult (success, attachmentId)       │
+└─────────────────────────────────────────────────────────────┘
+
+         [ASYNC BOUNDARY - RabbitMQ]
+
+┌─────────────────────────────────────────────────────────────┐
+│ 4. DocumentProcessingConsumer receives message              │
+│    - Extract text from fileData (Tika)                      │
+│    - Fetch StorageSection by sectionId                      │
+│    - Build prompt with section attributes                   │
+│    - Call Gemini AI with prompt                             │
+│    - Parse JSON response                                    │
+│    - Validate metadata keys match section attributes        │
+│    - Create StorageItem entity                              │
+│    - Link attachment to StorageItem                         │
+│    - Update attachment.status = COMPLETED                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 **Ready to Implement?**
+
+Just confirm:
+1. **Apache Tika** for text extraction - OK?
+2. Should I also implement a **GraphQL query** to check attachment status? (e.g., `getAttachmentStatus(attachmentId)`)
+3. Any specific **RabbitMQ configuration** preferences? (queue names, exchange type, etc.)
+
+Once you confirm, I'll start implementing the complete solution! 🎯
