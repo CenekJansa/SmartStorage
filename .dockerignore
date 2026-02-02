@@ -1,0 +1,54 @@
+# Build artifacts
+target/
+build/
+*.class
+*.jar
+*.war
+
+# Maven wrapper (we'll use the container's Maven)
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDE files
+.idea/
+.vscode/
+.settings/
+.project
+.classpath
+*.iml
+*.iws
+*.ipr
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+HELP.md
+README.md
+
+# Environment files
+.env
+.env.*
+
+# Documents (not needed in container)
+documents/
+
+# Test files
+src/test/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~
+

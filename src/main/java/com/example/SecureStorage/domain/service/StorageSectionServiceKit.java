@@ -1,6 +1,6 @@
 package com.example.SecureStorage.domain.service;
 
-import java.util.Map;
+import java.util.List;
 
 import com.example.SecureStorage.domain.entity.StorageSection;
 import com.example.SecureStorage.domain.entity.StorageSectionDocument;
@@ -17,7 +17,7 @@ public class StorageSectionServiceKit {
     public static class StorageSectionResVo {
         private String id;
         private String name;
-        private Map<String, String> attributes;
+        private List<String> attributes;
     }
 
     @Getter
@@ -25,7 +25,7 @@ public class StorageSectionServiceKit {
     @Builder
     public static class StorageSectionInputVo {
         private String name;
-        private Map<String, String> attributes;
+        private List<String> attributes;
     }
 
     // Mappers

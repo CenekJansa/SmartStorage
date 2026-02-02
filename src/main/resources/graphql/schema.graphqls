@@ -1,0 +1,15 @@
+type StorageSectionResult {
+    id: ID!
+    name: String!
+    attributes: [String!]!
+}
+
+type Query {
+    # This is required by the GraphQL specification, even if you don't use it.
+    # It acts as a placeholder for the required root Query type.
+    status: String
+}
+
+type Mutation {
+    createStorageSection(name: String!, attributes: [String!]!): StorageSectionResult!
+}

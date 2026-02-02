@@ -1,10 +1,11 @@
 package com.example.SecureStorage.domain.controller;
 
-import java.util.Map;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;
 
@@ -27,8 +28,8 @@ public class StorageSectionController {
      * @return created section
     */
     @MutationMapping
-    public StorageSectionResult createStorageSection(@NotNull String name,
-         @NotNull Map<String, String> attributes) {
+    public StorageSectionResult createStorageSection(@Argument @NotNull String name,
+         @Argument @NotNull List<String> attributes) {
         StorageSectionInputVo inputVo = StorageSectionInputVo.builder()
                 .name(name)
                 .attributes(attributes)

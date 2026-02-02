@@ -1,6 +1,6 @@
 package com.example.SecureStorage.domain.entity;
 
-import java.util.Map;
+import java.util.List;
 
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -16,8 +16,8 @@ public class StorageSectionDocument {
     private String id;
     private String name;
 
-    @Field(type = FieldType.Object)
-    private Map<String, String> attributes;
+    @Field(type = FieldType.Keyword)
+    private List<String> attributes;
 
     // Note: We don't include storageItems here for search purposes, as it's a relationship
     // If needed, we can add item counts or summaries

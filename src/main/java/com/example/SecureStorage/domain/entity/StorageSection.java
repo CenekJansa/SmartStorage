@@ -1,9 +1,9 @@
 package com.example.SecureStorage.domain.entity;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
-import com.example.SecureStorage.utils.JsonMapConverter;
+import com.example.SecureStorage.utils.JsonListConverter;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -20,8 +20,8 @@ public class StorageSection extends BaseEntity {
     @Column(nullable = false)
     private String name;
     @Column(name = "attributes_json", columnDefinition = "TEXT")
-    @Convert(converter = JsonMapConverter.class)
-    private Map<String, String> attributes;
+    @Convert(converter = JsonListConverter.class)
+    private List<String> attributes;
     @OneToMany(mappedBy = "storageSection", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<StorageItem> storageItems;
 }

@@ -1,6 +1,6 @@
 package com.example.SecureStorage.domain.controller;
 
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionResVo;
@@ -15,7 +15,7 @@ public class StorageSectionControllerKit {
     public static class StorageSectionResult {
         private UUID id;
         private String name;
-        private Map<String, String> attributes;
+        private List<String> attributes;
     }
 
     // Mappers

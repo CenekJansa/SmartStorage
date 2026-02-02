@@ -8,6 +8,7 @@ PostgreDB
 Weaviate
 SpringBoot
 MinIO
+Docker
 
 ## Assignment
 
@@ -29,3 +30,9 @@ Gemini 2.0 Flash Thinking Experimental
 - User will be able to ask questions to AI about the documents
 - User will be able to get notifications when important date is near. For example end of car warranty.
 - User will be able to perform CRUD operations on Document Sections.
+
+## Run the application
+
+## Access
+
+http://localhost:8080/graphiql

@@ -1,0 +1,17 @@
+mutation {
+  createStorageSection(
+    name: "Fleet Management",
+    attributes: [
+      "vehicle name", 
+      "licence plate", 
+      "Driver", 
+      "Next technical check", 
+      "ownership status"
+    ]
+  ) {
+    # Selection set: You MUST specify the fields you want back from StorageSectionResult
+    id
+    name
+    attributes
+  }
+}
