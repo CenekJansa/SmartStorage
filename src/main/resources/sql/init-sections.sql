@@ -1,0 +1,1 @@
+INSERT INTO StorageSection (id, name, attributes_json) VALUES (1, 'Vehicles', '["Brand", "Model", "Year of Manufacture", "VIN", "Registration Number", "Next Technical Check", "Ownership Status", "toll stamp expiry date"]');

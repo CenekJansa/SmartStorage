@@ -1,4 +1,13 @@
 spring:
+  sql:
+    init:
+      mode: always
+      platform: postgres
+      schema-locations: classpath:sql/schema-postgres.sql
+      data-locations: 
+       - classpath:sql/init-sections.sql
+
+
   graphql:
     graphiql:
       enabled: true

@@ -7,6 +7,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.SecureStorage.commons.OperationResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,21 +27,19 @@ public class AIDocumentProcessingService {
      * @return Map containing "name" (String) and "metadata" (Map<String, String>)
      * @throws Exception if AI processing fails
      */
-    public Map<String, Object> processDocument(String pdfText, List<String> sectionAttributes) throws Exception {
-        // Build the prompt using the user's template
-        String prompt = buildPrompt(pdfText, sectionAttributes);
-        
-        // Call Gemini AI
-        ChatClient chatClient = chatClientBuilder.build();
-        String aiResponse = chatClient.prompt()
-            .user(prompt)
-            .call()
-            .content();
-        
-        // Parse JSON response
-        Map<String, Object> result = parseAIResponse(aiResponse);
-        
-        return result;
+    public OperationResult<Map<String, Object>> processDocument(String pdfText, List<String> sectionAttributes){
+        try {
+            String prompt = buildPrompt(pdfText, sectionAttributes);
+            ChatClient chatClient = chatClientBuilder.build();
+            String aiResponse = chatClient.prompt()
+                .user(prompt)
+                .call()
+                .content();
+            Map<String, Object> result = parseAIResponse(aiResponse);
+            return OperationResult.success(result);
+        } catch (Exception e) {
+            return OperationResult.error("AI processing failed: " + e.getMessage());
+        }
     }
     
     /**
