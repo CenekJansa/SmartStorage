@@ -37,7 +37,7 @@ public class StorageItemSericeImpl implements StorageItemService {
     @Autowired
     private DocumentProcessingProducer documentProcessingProducer;
 
-    @Value("${minio.bucket.name}")
+    @Value("${spring.minio.bucket.name}")
     private String bucketName;
     
     /**

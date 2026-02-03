@@ -1,1 +1,1 @@
-INSERT INTO StorageItem (id, name, section_id, metadata_json) VALUES (1, 'Item 1', 1, '{"Brand": "Toyota", "year": "2020"}');
+INSERT INTO StorageItem (id, name, storage_section_id, metadata_json, created_at) VALUES (1, 'Item 1', 1, '{"Brand": "Toyota", "year": "2020"}', NOW());

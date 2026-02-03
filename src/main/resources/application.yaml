@@ -3,7 +3,6 @@ spring:
     init:
       mode: always
       platform: postgres
-      schema-locations: classpath:sql/schema-postgres.sql
       data-locations: 
        - classpath:sql/init-sections.sql
 
@@ -36,6 +35,7 @@ spring:
 
   # JPA/Hibernate Configuration
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: update
     show-sql: ${SHOW_SQL:false}
@@ -64,3 +64,12 @@ spring:
         chat:
           options:
             model: gemini-2.0-flash-thinking-exp
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          elasticsearch: DEBUG
+      elasticsearch:
+        client: DEBUG

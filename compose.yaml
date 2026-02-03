@@ -1,5 +1,18 @@
 services:
 
+  # app:
+  #   build: .
+  #   container_name: securestorage-app
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - postgres
+  #     - minio
+  #     - weaviate
+  #     - elasticsearch
+  #   networks:
+  #     - app-network
+
   minio:
     image: minio/minio
     container_name: securestorage-minio
@@ -60,9 +73,22 @@ services:
     networks:
       - app-network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: securestorage-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   postgres-data:
+  minio-data:
