@@ -67,7 +67,13 @@ public class DocumentProcessingConsumer {
         List<String> sectionAttributes = section.getAttributes();
         logger.info("Found section '{}' with {} attributes", section.getName(), sectionAttributes.size());
 
-        Map<String, Object> aiResult = aiDocumentProcessingService.processDocument(pdfText, sectionAttributes);
+        OperationResult<Map<String, Object>> aiResultRes = aiDocumentProcessingService.processDocument(pdfText, sectionAttributes);
+        if (!aiResultRes.isSuccess()) {
+            markAttachmentAsFailed(message.getAttachmentId(), aiResultRes.getErrorMessage());
+            return;
+        }
+        Map<String, Object> aiResult = aiResultRes.getData();
+
         logger.info("AI processing completed successfully");
 
         OperationResult<StorageItem> storageItemRes = StorageItemFactory.createStorageItemFromAttachment(aiResult);
