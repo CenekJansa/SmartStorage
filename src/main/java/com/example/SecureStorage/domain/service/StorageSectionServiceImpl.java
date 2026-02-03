@@ -1,5 +1,8 @@
 package com.example.SecureStorage.domain.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,21 +22,19 @@ public class StorageSectionServiceImpl implements StorageSectionService {
     @Autowired
     private StorageSectionRepository jpaRepository;
 
-    // TODO: Re-enable Elasticsearch once basic CRUD is working
-    // @Autowired
-    // private StorageSectionElasticsearchRepository esRepository;
-
     @Override
     public StorageSectionResVo createStorageSection(StorageSectionInputVo inputVo) {
         StorageSection section = StorageSectionMapper.mapFrom(inputVo);
-
         StorageSection saved = jpaRepository.save(section);
-
-        // TODO: Re-enable Elasticsearch indexing once basic CRUD is working
-        // StorageSectionDocument doc = StorageSectionDocumentMapper.mapFrom(saved);
-        // esRepository.save(doc);
-
         return StorageSectionResVoMapper.mapFrom(saved);
+    }
+
+    @Override
+    public List<StorageSectionResVo> retrieveStorageSections() {
+        List<StorageSection> sections = jpaRepository.findAll();
+        return sections.stream()
+                .map(StorageSectionResVoMapper::mapFrom)
+                .collect(Collectors.toList());
     }
 
 }

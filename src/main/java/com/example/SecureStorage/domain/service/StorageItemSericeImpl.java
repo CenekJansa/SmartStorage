@@ -1,7 +1,10 @@
 package com.example.SecureStorage.domain.service;
 
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -12,10 +15,14 @@ import org.springframework.stereotype.Service;
 
 import com.example.SecureStorage.commons.OperationResult;
 import com.example.SecureStorage.domain.entity.AttachmentStatus;
+import com.example.SecureStorage.domain.entity.StorageItem;
 import com.example.SecureStorage.domain.entity.StorageItemAttachment;
 import com.example.SecureStorage.domain.entity.StorageSection;
 import com.example.SecureStorage.domain.repository.StorageItemAttachmentRepository;
+import com.example.SecureStorage.domain.repository.StorageItemRepository;
 import com.example.SecureStorage.domain.repository.StorageSectionRepository;
+import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemResultVo;
+import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemResultVoMapper;
 import com.example.SecureStorage.messaging.DocumentProcessingMessage;
 import com.example.SecureStorage.messaging.DocumentProcessingProducer;
 
@@ -36,6 +43,9 @@ public class StorageItemSericeImpl implements StorageItemService {
 
     @Autowired
     private DocumentProcessingProducer documentProcessingProducer;
+
+    @Autowired
+    private StorageItemRepository storageItemRepository;
 
     @Value("${spring.minio.bucket.name}")
     private String bucketName;
@@ -89,6 +99,15 @@ public class StorageItemSericeImpl implements StorageItemService {
         } catch (Exception e) {
             return OperationResult.error("Failed to upload file: " + e.getMessage());
         }
+    }
+
+    @Override
+    public List<StorageItemResultVo> retrieveStorageItems(@NotNull Long sectionId) {
+        List<StorageItem> items = storageItemRepository.findByStorageSectionId(sectionId);
+        List<StorageItemResultVo> result = items.stream()
+            .map(StorageItemResultVoMapper::mapFrom)
+            .toList();
+        return result;
     }
 
 }

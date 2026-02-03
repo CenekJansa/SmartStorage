@@ -7,6 +7,4 @@ import com.example.SecureStorage.domain.entity.StorageSection;
 
 @Repository
 public interface StorageSectionRepository extends JpaRepository<StorageSection, Long> {
-    // Add JPA-specific queries if needed, e.g.:
-    // Optional<StorageSection> findByName(String name);
 }

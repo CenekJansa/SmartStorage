@@ -1,0 +1,7 @@
+query MyQuery {
+  retrieveStorageSections {
+    attributes
+    id
+    name
+  }
+}

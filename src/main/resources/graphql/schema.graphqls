@@ -6,6 +6,17 @@ type StorageSectionResult {
     attributes: [String!]!
 }
 
+type DataPair {
+    key: String!
+    value: String
+}
+
+type StorageItemResult {
+    id: ID!
+    name: String!
+    metadata: DataPair
+}
+
 type UploadResult {
     success: Boolean!
     attachmentId: ID
@@ -13,9 +24,9 @@ type UploadResult {
 }
 
 type Query {
-    # This is required by the GraphQL specification, even if you don't use it.
-    # It acts as a placeholder for the required root Query type.
     status: String
+    retrieveStorageSections: [StorageSectionResult!]!
+    retrieveStorageItems(sectionId: ID!): [StorageItemResult!]!
 }
 
 type Mutation {

@@ -9,7 +9,6 @@ mutation {
       "ownership status"
     ]
   ) {
-    # Selection set: You MUST specify the fields you want back from StorageSectionResult
     id
     name
     attributes

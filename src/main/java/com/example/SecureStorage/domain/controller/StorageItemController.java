@@ -1,7 +1,9 @@
 package com.example.SecureStorage.domain.controller;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -12,8 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.SecureStorage.commons.OperationResult;
 import com.example.SecureStorage.domain.controller.StorageItemControllerKit.StorageItemResult;
+import com.example.SecureStorage.domain.controller.StorageItemControllerKit.StorageItemResultMapper;
 import com.example.SecureStorage.domain.controller.StorageItemControllerKit.UploadResult;
 import com.example.SecureStorage.domain.service.StorageItemService;
+import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemResultVo;
 
 @Controller
 public class StorageItemController {
@@ -22,7 +26,7 @@ public class StorageItemController {
     private StorageItemService storageItemService;
 
     @MutationMapping
-    public UploadResult uploadDocument(@Argument Long sectionId, @Argument MultipartFile file) {
+    public UploadResult uploadDocument(@Argument @NotNull Long sectionId, @Argument MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
             byte[] fileData = file.getBytes();
@@ -49,13 +53,16 @@ public class StorageItemController {
     }
 
     @QueryMapping
-    public Set<StorageItemResult> listStorageItems(@Argument Long sectionId) {
-        return null;
+    public List<StorageItemResult> retrieveStorageItems(@Argument @NotNull Long sectionId) {
+        List<StorageItemResultVo> resultVos = storageItemService.retrieveStorageItems(sectionId);
+        List<StorageItemResult> result = resultVos.stream()
+            .map(StorageItemResultMapper::mapFrom)
+            .toList();
+        return result;
     } 
 
     @QueryMapping
     public StorageItemResult getStorageItemDetail(@Argument Long id) {
-        
-        return null;
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }
