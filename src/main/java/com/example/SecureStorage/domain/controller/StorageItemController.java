@@ -19,14 +19,18 @@ import com.example.SecureStorage.domain.controller.StorageItemControllerKit.Uplo
 import com.example.SecureStorage.domain.service.StorageItemService;
 import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemResultVo;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Controller
+@Slf4j
 public class StorageItemController {
 
     @Autowired
-    private StorageItemService storageItemService;
+    private StorageItemService storageItemService;;
 
     @MutationMapping
     public UploadResult uploadDocument(@Argument @NotNull Long sectionId, @Argument MultipartFile file) {
+        log.info("Uploading file: {}", file.getOriginalFilename());
         try {
             String fileName = file.getOriginalFilename();
             byte[] fileData = file.getBytes();

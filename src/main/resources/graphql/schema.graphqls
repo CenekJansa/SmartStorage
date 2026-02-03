@@ -1,5 +1,3 @@
-scalar Upload
-
 type StorageSectionResult {
     id: ID!
     name: String!
@@ -31,5 +29,5 @@ type Query {
 
 type Mutation {
     createStorageSection(name: String!, attributes: [String!]!): StorageSectionResult!
-    uploadDocument(itemId: ID!, file: Upload!): UploadResult!
+    uploadDocument(sectionId: ID!, file: Upload!): UploadResult!
 }
