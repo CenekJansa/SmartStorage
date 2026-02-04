@@ -16,29 +16,46 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class AIDocumentProcessingService {
-    
+
     @Autowired
     private ChatClient.Builder chatClientBuilder;
-    
+
     private final ObjectMapper objectMapper = new ObjectMapper();
-    
+
     /**
      * Process a PDF document using AI to extract structured data
      * 
-     * @param pdfText the extracted text from the PDF
+     * @param pdfText           the extracted text from the PDF
      * @param sectionAttributes the list of attributes for the section
      * @return Map containing "name" (String) and "metadata" (Map<String, String>)
      * @throws Exception if AI processing fails
      */
-    public OperationResult<Map<String, Object>> processDocument(String pdfText, List<String> sectionAttributes){
+    public OperationResult<Map<String, Object>> processDocument(String pdfText, List<String> sectionAttributes) {
         try {
             String prompt = buildPrompt(pdfText, sectionAttributes);
             ChatClient chatClient = chatClientBuilder.build();
             log.info("Sending prompt to AI: {}", prompt);
-            String aiResponse = chatClient.prompt()
-                .user(prompt)
-                .call()
-                .content();
+            // String aiResponse = chatClient.prompt()
+            // .user(prompt)
+            // .call()
+            // .content();
+            String aiResponse = """
+                                         |||
+                    {
+                        "name": "Motor Vehicle",
+                        "metadata": {
+                            "Brand": "ŠKODA",
+                            "Model": "Octavia Combi 1.5 TSI",
+                            "Year of Manufacture": "2025",
+                            "VIN": "TMBJR8NX9SY012345",
+                            "Registration Number": null,
+                            "Next Technical Check": null,
+                            "Ownership Status": "New and Unregistered",
+                            "toll stamp expiry date": null
+                        }
+                    }
+                    |||
+                                        """;
             log.info("AI response: {}", aiResponse);
             Map<String, Object> result = parseAIResponse(aiResponse);
             log.info("AI processing completed successfully: {}", result);
@@ -48,7 +65,7 @@ public class AIDocumentProcessingService {
             return OperationResult.error("AI processing failed: " + e.getMessage());
         }
     }
-    
+
     /**
      * Build the prompt for AI using the user's template
      */
@@ -67,7 +84,7 @@ public class AIDocumentProcessingService {
         prompt.append("{\n");
         prompt.append("    \"name\": \"name of the item\",\n");
         prompt.append("    \"metadata\": {\n");
-        
+
         // Add each attribute as a key in metadata
         for (int i = 0; i < sectionAttributes.size(); i++) {
             String attr = sectionAttributes.get(i);
@@ -77,21 +94,22 @@ public class AIDocumentProcessingService {
             }
             prompt.append("\n");
         }
-        
+
         prompt.append("    }\n");
         prompt.append("}\n\n");
-        prompt.append("Return ONLY the JSON object, no additional text or explanation. The JSON response must be bounded by characters |||\n");
-         prompt.append("For example: ||| { \"name\": \"...\", \"metadata\": { ... } } |||");
+        prompt.append(
+                "Return ONLY the JSON object, no additional text or explanation. The JSON response must be bounded by characters |||\n");
+        prompt.append("For example: ||| { \"name\": \"...\", \"metadata\": { ... } } |||");
         return prompt.toString();
     }
-    
+
     /**
      * Parse AI response into structured data
      */
     private Map<String, Object> parseAIResponse(String aiResponse) throws Exception {
-String cleanedResponse = aiResponse.trim();
+        String cleanedResponse = aiResponse.trim();
         final String BOUNDARY = "|||";
-        
+
         // 1. Clean the response - remove the expected "|||" boundaries
         if (cleanedResponse.startsWith(BOUNDARY)) {
             cleanedResponse = cleanedResponse.substring(BOUNDARY.length()).trim();
@@ -100,7 +118,8 @@ String cleanedResponse = aiResponse.trim();
             cleanedResponse = cleanedResponse.substring(0, cleanedResponse.length() - BOUNDARY.length()).trim();
         }
 
-        // 2. Clean the response - remove markdown code blocks if present (for robustness)
+        // 2. Clean the response - remove markdown code blocks if present (for
+        // robustness)
         if (cleanedResponse.startsWith("```json")) {
             cleanedResponse = cleanedResponse.substring(7);
         }
@@ -111,15 +130,15 @@ String cleanedResponse = aiResponse.trim();
             cleanedResponse = cleanedResponse.substring(0, cleanedResponse.length() - 3);
         }
         cleanedResponse = cleanedResponse.trim();
-        
+
         // Parse JSON
         Map<String, Object> parsed = objectMapper.readValue(
-            cleanedResponse, 
-            new TypeReference<Map<String, Object>>() {}
-        );
+                cleanedResponse,
+                new TypeReference<Map<String, Object>>() {
+                });
 
         log.info("Parsed AI response: {}", parsed);
-        
+
         // Validate structure
         if (!parsed.containsKey("name")) {
             throw new IllegalArgumentException("AI response missing 'name' field");
@@ -127,8 +146,7 @@ String cleanedResponse = aiResponse.trim();
         if (!parsed.containsKey("metadata")) {
             throw new IllegalArgumentException("AI response missing 'metadata' field");
         }
-        
+
         return parsed;
     }
 }
-

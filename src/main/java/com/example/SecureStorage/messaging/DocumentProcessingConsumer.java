@@ -26,7 +26,10 @@ import com.example.SecureStorage.domain.repository.StorageItemRepository;
 import com.example.SecureStorage.domain.repository.StorageSectionRepository;
 import com.example.SecureStorage.domain.service.AIDocumentProcessingService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class DocumentProcessingConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentProcessingConsumer.class);
@@ -66,7 +69,7 @@ public class DocumentProcessingConsumer {
                 return;
             }
             StorageSection section = sectionOpt.get();
-
+            List<String> uniqueKeys = section.getUniqueKeys();
             List<String> sectionAttributes = section.getAttributes();
             logger.info("Found section '{}' with {} attributes", section.getName(), sectionAttributes.size());
 
@@ -85,6 +88,22 @@ public class DocumentProcessingConsumer {
                 return;
             }
             StorageItem storageItem = storageItemRes.getData();
+
+            // look for duplicates
+            logger.info("Looking for duplicates for unique keys: {}", uniqueKeys);
+            for (String uniqueKey : uniqueKeys) {
+                Optional<StorageItem> existingItemOpt = storageItemRepository.findByMetadataAttribute(
+                    section.getId(), 
+                    uniqueKey, 
+                    aiResult.get(uniqueKey).toString()
+                );
+                if (existingItemOpt.isPresent()) {
+                    log.info("Duplicate item found for unique key '{}' with value '{}'", uniqueKey, aiResult.get(uniqueKey).toString());
+                    mergeItems(existingItemOpt.get(), storageItem, message.getAttachmentId());
+                    return;
+                }
+            
+            }
 
             Optional<StorageItemAttachment> attachmentOpt = storageItemAttachmentRepository
                     .findById(message.getAttachmentId());
@@ -112,6 +131,22 @@ public class DocumentProcessingConsumer {
             markAttachmentAsFailed(message.getAttachmentId(), e.getMessage());
             // Don't rethrow - message will be acknowledged and removed from queue
         }
+    }
+
+    private void mergeItems(StorageItem existingItem, StorageItem newItem, Long attachmentId) {
+        // of each key set
+        Map<String, Object> existingMetadata = existingItem.getMetadata();
+        Map<String, Object> newMetadata = newItem.getMetadata();
+        for (String key : newMetadata.keySet()) {
+            if (!existingMetadata.containsKey(key) || existingMetadata.get(key) == null) {
+                existingMetadata.put(key, newMetadata.get(key));
+            }
+        }
+        StorageItemAttachment attachment = storageItemAttachmentRepository.findById(attachmentId).get();
+        attachment.setStorageItem(existingItem);
+        storageItemAttachmentRepository.save(attachment);
+        existingItem.setMetadata(existingMetadata);
+        storageItemRepository.save(existingItem);
     }
 
     private void markAttachmentAsFailed(Long attachmentId, String errorMessage) {
