@@ -24,7 +24,6 @@ import com.example.SecureStorage.domain.repository.StorageItemAttachmentReposito
 import com.example.SecureStorage.domain.repository.StorageItemRepository;
 import com.example.SecureStorage.domain.repository.StorageSectionRepository;
 import com.example.SecureStorage.domain.service.AIDocumentProcessingService;
-import com.google.api.client.util.PemReader.Section;
 
 @Component
 public class DocumentProcessingConsumer {

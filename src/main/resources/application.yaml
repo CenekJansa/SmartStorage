@@ -13,12 +13,6 @@ spring:
   application:
     name: SecureStorage
 
-  minio:
-    url: http://localhost:9000
-    access-key: minioadmin
-    secret-key: minioadmin
-    bucket.name: securestorage-bucket
-
   # RabbitMQ Configuration
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
@@ -73,3 +67,11 @@ logging:
           elasticsearch: DEBUG
       elasticsearch:
         client: DEBUG
+
+# MinIO Configuration
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket:
+    name: securestorage-bucket

@@ -1,10 +1,7 @@
 package com.example.SecureStorage.domain.service;
 
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
@@ -26,14 +23,8 @@ import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageIte
 import com.example.SecureStorage.messaging.DocumentProcessingMessage;
 import com.example.SecureStorage.messaging.DocumentProcessingProducer;
 
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-
 @Service
 public class StorageItemSericeImpl implements StorageItemService {
-
-    @Autowired
-    private MinioClient minioClient;
 
     @Autowired
     private StorageSectionRepository storageSectionRepository;
@@ -47,7 +38,10 @@ public class StorageItemSericeImpl implements StorageItemService {
     @Autowired
     private StorageItemRepository storageItemRepository;
 
-    @Value("${spring.minio.bucket.name}")
+    @Autowired
+    private MinioService minioService;
+
+    @Value("${minio.bucket.name}")
     private String bucketName;
     
     /**
@@ -65,40 +59,30 @@ public class StorageItemSericeImpl implements StorageItemService {
         if (!sectionOpt.isPresent()) {
             return OperationResult.error("StorageSection not found with ID: " + sectionId);
         }
-        try {
-            String uniqueObjectName = UUID.randomUUID().toString() + "_" + fileName;
-
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
-            minioClient.putObject(
-                PutObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(uniqueObjectName)
-                    .stream(inputStream, fileData.length, -1)
-                    .build()
-            );
-
-            StorageItemAttachment attachment = new StorageItemAttachment();
-            attachment.setFileName(fileName);
-            attachment.setBucketName(bucketName);
-            attachment.setFullObjectName(uniqueObjectName);
-            attachment.setStatus(AttachmentStatus.PROCESSING);
-
-            StorageItemAttachment savedAttachment =
-             storageItemAttachmentRepository.save(attachment);
-
-            DocumentProcessingMessage message = new DocumentProcessingMessage(
-                fileData,
-                sectionId,
-                savedAttachment.getId(),
-                fileName
-            );
-            documentProcessingProducer.sendProcessingMessage(message);
-
-            return OperationResult.success(savedAttachment.getId());
-
-        } catch (Exception e) {
-            return OperationResult.error("Failed to upload file: " + e.getMessage());
+        String uniqueObjectName = UUID.randomUUID().toString() + "_" + fileName;
+        OperationResult<Void> minioResult = minioService.storeFile(fileData, fileName, bucketName, uniqueObjectName);
+        if (!minioResult.isSuccess()) {
+            return OperationResult.error("Failed to store file in MinIO: " + minioResult.getErrorMessage());
         }
+
+        StorageItemAttachment attachment = new StorageItemAttachment();
+        attachment.setFileName(fileName);
+        attachment.setBucketName(bucketName);
+        attachment.setFullObjectName(uniqueObjectName);
+        attachment.setStatus(AttachmentStatus.PROCESSING);
+
+        StorageItemAttachment savedAttachment =
+            storageItemAttachmentRepository.save(attachment);
+
+        DocumentProcessingMessage message = new DocumentProcessingMessage(
+            fileData,
+            sectionId,
+            savedAttachment.getId(),
+            fileName
+        );
+        documentProcessingProducer.sendProcessingMessage(message);
+
+        return OperationResult.success(savedAttachment.getId());
     }
 
     @Override

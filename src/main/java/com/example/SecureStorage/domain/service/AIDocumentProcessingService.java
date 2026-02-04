@@ -11,7 +11,10 @@ import com.example.SecureStorage.commons.OperationResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class AIDocumentProcessingService {
     
     @Autowired
@@ -31,13 +34,16 @@ public class AIDocumentProcessingService {
         try {
             String prompt = buildPrompt(pdfText, sectionAttributes);
             ChatClient chatClient = chatClientBuilder.build();
+            log.info("Sending prompt to AI: {}", prompt);
             String aiResponse = chatClient.prompt()
                 .user(prompt)
                 .call()
                 .content();
             Map<String, Object> result = parseAIResponse(aiResponse);
+            log.info("AI processing completed successfully: {}", result);
             return OperationResult.success(result);
         } catch (Exception e) {
+            log.error("AI document processing failed: {}", e.getMessage(), e);
             return OperationResult.error("AI processing failed: " + e.getMessage());
         }
     }
