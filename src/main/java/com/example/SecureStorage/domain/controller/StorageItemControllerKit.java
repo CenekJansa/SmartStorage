@@ -1,17 +1,28 @@
 package com.example.SecureStorage.domain.controller;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemResultVo;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
 public class StorageItemControllerKit {
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    public static class DataPair {
+        private String key;
+        private String value;
+    }
 
     @Builder
     @Getter
@@ -20,7 +31,7 @@ public class StorageItemControllerKit {
         private Long id;
         private String name;
         private String fileName;
-        private Map<String, String> metadata;
+        private List<DataPair> metadata;
     }
 
     @Getter
@@ -36,20 +47,23 @@ public class StorageItemControllerKit {
     public static class StorageItemResultMapper {
         public static StorageItemResult mapFrom(@NonNull StorageItemResultVo vo) {
             Map<String, Object> sourceMetadata = vo.getMetadata();
-            Map<String, String> stringMetadata = null;
+            List<DataPair> metadataList;
             if (sourceMetadata == null) {
-                stringMetadata = Collections.emptyMap();
+                metadataList = Collections.emptyList();
             } else {
-                stringMetadata = sourceMetadata.entrySet().stream()
+                metadataList = sourceMetadata.entrySet().stream()
                         .filter(entry -> entry.getValue() != null)
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                entry -> entry.getValue().toString()));
+                        .map(entry -> DataPair.builder()
+                                .key(entry.getKey())
+                                .value(entry.getValue().toString())
+                                .build())
+                        .sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+                        .collect(Collectors.toList());
             }
             return StorageItemResult.builder()
                     .id(vo.getId())
                     .name(vo.getName())
-                    .metadata(stringMetadata)
+                    .metadata(metadataList)
                     .build();
         }
     }

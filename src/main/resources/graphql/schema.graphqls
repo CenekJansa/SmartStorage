@@ -12,7 +12,7 @@ type DataPair {
 type StorageItemResult {
     id: ID!
     name: String!
-    metadata: DataPair
+    metadata: [DataPair!]!
 }
 
 type UploadResult {

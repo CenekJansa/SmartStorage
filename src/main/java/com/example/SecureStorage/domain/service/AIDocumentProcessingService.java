@@ -39,6 +39,7 @@ public class AIDocumentProcessingService {
                 .user(prompt)
                 .call()
                 .content();
+            log.info("AI response: {}", aiResponse);
             Map<String, Object> result = parseAIResponse(aiResponse);
             log.info("AI processing completed successfully: {}", result);
             return OperationResult.success(result);
@@ -79,8 +80,8 @@ public class AIDocumentProcessingService {
         
         prompt.append("    }\n");
         prompt.append("}\n\n");
-        prompt.append("Return ONLY the JSON object, no additional text or explanation.");
-        
+        prompt.append("Return ONLY the JSON object, no additional text or explanation. The JSON response must be bounded by characters |||\n");
+         prompt.append("For example: ||| { \"name\": \"...\", \"metadata\": { ... } } |||");
         return prompt.toString();
     }
     
@@ -88,8 +89,18 @@ public class AIDocumentProcessingService {
      * Parse AI response into structured data
      */
     private Map<String, Object> parseAIResponse(String aiResponse) throws Exception {
-        // Clean the response - remove markdown code blocks if present
-        String cleanedResponse = aiResponse.trim();
+String cleanedResponse = aiResponse.trim();
+        final String BOUNDARY = "|||";
+        
+        // 1. Clean the response - remove the expected "|||" boundaries
+        if (cleanedResponse.startsWith(BOUNDARY)) {
+            cleanedResponse = cleanedResponse.substring(BOUNDARY.length()).trim();
+        }
+        if (cleanedResponse.endsWith(BOUNDARY)) {
+            cleanedResponse = cleanedResponse.substring(0, cleanedResponse.length() - BOUNDARY.length()).trim();
+        }
+
+        // 2. Clean the response - remove markdown code blocks if present (for robustness)
         if (cleanedResponse.startsWith("```json")) {
             cleanedResponse = cleanedResponse.substring(7);
         }
@@ -106,6 +117,8 @@ public class AIDocumentProcessingService {
             cleanedResponse, 
             new TypeReference<Map<String, Object>>() {}
         );
+
+        log.info("Parsed AI response: {}", parsed);
         
         // Validate structure
         if (!parsed.containsKey("name")) {
