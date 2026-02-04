@@ -92,10 +92,16 @@ public class DocumentProcessingConsumer {
             // look for duplicates
             logger.info("Looking for duplicates for unique keys: {}", uniqueKeys);
             for (String uniqueKey : uniqueKeys) {
+                String aiResultStr;
+                if (aiResult.get(uniqueKey) == null) {
+                    aiResultStr = "";
+                } else {
+                    aiResultStr = aiResult.get(uniqueKey).toString();
+                }
                 Optional<StorageItem> existingItemOpt = storageItemRepository.findByMetadataAttribute(
                     section.getId(), 
                     uniqueKey, 
-                    aiResult.get(uniqueKey).toString()
+                    aiResultStr
                 );
                 if (existingItemOpt.isPresent()) {
                     log.info("Duplicate item found for unique key '{}' with value '{}'", uniqueKey, aiResult.get(uniqueKey).toString());

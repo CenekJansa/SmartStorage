@@ -5,7 +5,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.example.SecureStorage.utils.JsonMapConverter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import com.example.SecureStorage.utils.StringMapJsonAttributeConverter;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -14,20 +17,27 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Setter
+@SuperBuilder
+@NoArgsConstructor
 public class StorageItem extends BaseEntity {
     @Column(nullable = false)
     private String name;
-    @OneToMany(mappedBy = "storageItem",
-     cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "storageItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<StorageItemAttachment> attachments = new HashSet<>();
-    @Column(name = "metadata_json", columnDefinition = "TEXT")
-    @Convert(converter = JsonMapConverter.class)
+    @Convert(converter = StringMapJsonAttributeConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "metadata_json", columnDefinition = "jsonb")
+    @Builder.Default
     private Map<String, Object> metadata = new HashMap<>();
     @JoinColumn(name = "storage_section_id", nullable = false)
     @ManyToOne
