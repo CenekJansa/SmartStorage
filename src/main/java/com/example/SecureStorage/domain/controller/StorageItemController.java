@@ -58,6 +58,7 @@ public class StorageItemController {
 
     @QueryMapping
     public List<StorageItemResult> retrieveStorageItems(@Argument @NotNull Long sectionId) {
+        log.info("Retrieving storage items for sectionId: {}", sectionId);
         List<StorageItemResultVo> resultVos = storageItemService.retrieveStorageItems(sectionId);
         List<StorageItemResult> result = resultVos.stream()
             .map(StorageItemResultMapper::mapFrom)

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.SecureStorage.domain.entity.StorageSection;
 // import com.example.SecureStorage.domain.entity.StorageSectionDocument;
@@ -23,6 +24,7 @@ public class StorageSectionServiceImpl implements StorageSectionService {
     private StorageSectionRepository jpaRepository;
 
     @Override
+    @Transactional
     public StorageSectionResVo createStorageSection(StorageSectionInputVo inputVo) {
         StorageSection section = StorageSectionMapper.mapFrom(inputVo);
         StorageSection saved = jpaRepository.save(section);
@@ -30,6 +32,7 @@ public class StorageSectionServiceImpl implements StorageSectionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<StorageSectionResVo> retrieveStorageSections() {
         List<StorageSection> sections = jpaRepository.findAll();
         return sections.stream()

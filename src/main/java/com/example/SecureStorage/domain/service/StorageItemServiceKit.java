@@ -2,6 +2,8 @@ package com.example.SecureStorage.domain.service;
 
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 import com.example.SecureStorage.domain.entity.StorageItem;
 
 import lombok.Builder;
@@ -22,7 +24,11 @@ public class StorageItemServiceKit {
     // Mappers
 
     public static class StorageItemResultVoMapper {
-        public static StorageItemResultVo mapFrom(StorageItem item) {
+        public static StorageItemResultVo mapFrom(@NotNull StorageItem item) {
+            if (item.getMetadata() == null) {
+                throw new IllegalArgumentException(
+                    "Metadata in StorageItem cannot be null");
+            }
             return StorageItemResultVo.builder()
                 .id(item.getId())
                 .name(item.getName())

@@ -1,5 +1,7 @@
 package com.example.SecureStorage.domain.entity;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,10 +25,10 @@ public class StorageItem extends BaseEntity {
     private String name;
     @OneToMany(mappedBy = "storageItem",
      cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<StorageItemAttachment> attachments;
+    private Set<StorageItemAttachment> attachments = new HashSet<>();
     @Column(name = "metadata_json", columnDefinition = "TEXT")
     @Convert(converter = JsonMapConverter.class)
-    private Map<String, Object> metadata;
+    private Map<String, Object> metadata = new HashMap<>();
     @JoinColumn(name = "storage_section_id", nullable = false)
     @ManyToOne
     private StorageSection storageSection;

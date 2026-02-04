@@ -1,3 +1,5 @@
+spring.config.import: optional:file:.env[.properties]
+
 spring:
   sql:
     init:
@@ -19,6 +21,11 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        retry:
+          enabled: false  # Disable retries completely
+        default-requeue-rejected: false  # Don't requeue rejected messages - remove them immediately
 
   # Database Configuration
   datasource:
@@ -57,7 +64,7 @@ spring:
         project-id: ${GOOGLE_GEN_AI_PROJECT_ID:}
         chat:
           options:
-            model: gemini-2.0-flash-thinking-exp
+            model: gemini-2.5-flash
 
 logging:
   level:

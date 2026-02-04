@@ -18,7 +18,7 @@ public class RabbitMQConfig {
     
     @Bean
     public Queue documentProcessingQueue() {
-        return new Queue(QUEUE_NAME, true); // durable queue
+        return new Queue(QUEUE_NAME, false);
     }
     
     @Bean

@@ -1,5 +1,7 @@
 package com.example.SecureStorage.domain.entity;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,8 +23,8 @@ public class StorageSection extends BaseEntity {
     private String name;
     @Column(name = "attributes_json", columnDefinition = "TEXT")
     @Convert(converter = JsonListConverter.class)
-    private List<String> attributes;
+    private List<String> attributes = new ArrayList<>();
     @OneToMany(mappedBy = "storageSection",
      cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<StorageItem> storageItems;
+    private Set<StorageItem> storageItems = new HashSet<>();
 }

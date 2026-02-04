@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.SecureStorage.commons.OperationResult;
 import com.example.SecureStorage.domain.entity.AttachmentStatus;
@@ -53,6 +54,7 @@ public class StorageItemSericeImpl implements StorageItemService {
      * @return id of the attachment
      */
     @Override
+    @Transactional
     public OperationResult<Long> uploadFile(@NotNull Long sectionId,
          @NotNull String fileName, @NotNull byte[] fileData) {
         Optional<StorageSection> sectionOpt = storageSectionRepository.findById(sectionId);
@@ -86,6 +88,7 @@ public class StorageItemSericeImpl implements StorageItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<StorageItemResultVo> retrieveStorageItems(@NotNull Long sectionId) {
         List<StorageItem> items = storageItemRepository.findByStorageSectionId(sectionId);
         List<StorageItemResultVo> result = items.stream()

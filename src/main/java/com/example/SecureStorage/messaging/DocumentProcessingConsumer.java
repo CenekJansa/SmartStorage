@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.SecureStorage.commons.OperationResult;
 import com.example.SecureStorage.config.RabbitMQConfig;
@@ -48,59 +49,69 @@ public class DocumentProcessingConsumer {
      * @param message the document processing message from RabbitMQ
      */
     @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
+    @Transactional
     public void processDocument(DocumentProcessingMessage message) {
-        OperationResult<String> pdfTextRes = extractTextFromPDF(message.getFileData());
-        if (!pdfTextRes.isSuccess()) {
-            markAttachmentAsFailed(message.getAttachmentId(), pdfTextRes.getErrorMessage());
-            return;
+        try {
+            OperationResult<String> pdfTextRes = extractTextFromPDF(message.getFileData());
+            if (!pdfTextRes.isSuccess()) {
+                markAttachmentAsFailed(message.getAttachmentId(), pdfTextRes.getErrorMessage());
+                return;
+            }
+            String pdfText = pdfTextRes.getData();
+            logger.info("Extracted {} characters from PDF", pdfText.length());
+
+            Optional<StorageSection> sectionOpt = storageSectionRepository.findById(message.getSectionId());
+            if (!sectionOpt.isPresent()) {
+                markAttachmentAsFailed(message.getAttachmentId(), "StorageSection not found with ID: " + message.getSectionId());
+                return;
+            }
+            StorageSection section = sectionOpt.get();
+
+            List<String> sectionAttributes = section.getAttributes();
+            logger.info("Found section '{}' with {} attributes", section.getName(), sectionAttributes.size());
+
+            OperationResult<Map<String, Object>> aiResultRes = aiDocumentProcessingService.processDocument(pdfText, sectionAttributes);
+            if (!aiResultRes.isSuccess()) {
+                markAttachmentAsFailed(message.getAttachmentId(), aiResultRes.getErrorMessage());
+                return;
+            }
+            Map<String, Object> aiResult = aiResultRes.getData();
+
+            logger.info("AI processing completed successfully");
+
+            OperationResult<StorageItem> storageItemRes = StorageItemFactory.createStorageItemFromAttachment(aiResult);
+            if (!storageItemRes.isSuccess()) {
+                markAttachmentAsFailed(message.getAttachmentId(), "Failed to create StorageItem: " + storageItemRes.getErrorMessage());
+                return;
+            }
+            StorageItem storageItem = storageItemRes.getData();
+
+            Optional<StorageItemAttachment> attachmentOpt = storageItemAttachmentRepository
+                    .findById(message.getAttachmentId());
+            if (!attachmentOpt.isPresent()) {
+                markAttachmentAsFailed(message.getAttachmentId(), "Attachment not found with ID: " + message.getAttachmentId());
+                return;
+            }
+            StorageItemAttachment attachment = attachmentOpt.get();
+
+            // save item
+            storageItem.setStorageSection(section);
+            // Note: Don't add attachment to storageItem.attachments - relationship is managed by attachment.setStorageItem()
+            StorageItem savedItem = storageItemRepository.save(storageItem);
+            // update section
+            section.getStorageItems().add(savedItem);
+            storageSectionRepository.save(section);
+            // update attachment
+            attachment.setStorageItem(savedItem);
+            attachment.setStatus(AttachmentStatus.COMPLETED);
+            storageItemAttachmentRepository.save(attachment);
+
+            logger.info("Successfully processed document for attachment ID: {}", message.getAttachmentId());
+        } catch (Exception e) {
+            logger.error("Failed to process document for attachment ID: {}", message.getAttachmentId(), e);
+            markAttachmentAsFailed(message.getAttachmentId(), e.getMessage());
+            // Don't rethrow - message will be acknowledged and removed from queue
         }
-        String pdfText = pdfTextRes.getData();
-        logger.info("Extracted {} characters from PDF", pdfText.length());
-
-        Optional<StorageSection> sectionOpt = storageSectionRepository.findById(message.getSectionId());
-        if (!sectionOpt.isPresent()) {
-            throw new IllegalArgumentException("StorageSection not found with ID: " + message.getSectionId());
-        }
-        StorageSection section = sectionOpt.get();
-
-        List<String> sectionAttributes = section.getAttributes();
-        logger.info("Found section '{}' with {} attributes", section.getName(), sectionAttributes.size());
-
-        OperationResult<Map<String, Object>> aiResultRes = aiDocumentProcessingService.processDocument(pdfText, sectionAttributes);
-        if (!aiResultRes.isSuccess()) {
-            markAttachmentAsFailed(message.getAttachmentId(), aiResultRes.getErrorMessage());
-            return;
-        }
-        Map<String, Object> aiResult = aiResultRes.getData();
-
-        logger.info("AI processing completed successfully");
-
-        OperationResult<StorageItem> storageItemRes = StorageItemFactory.createStorageItemFromAttachment(aiResult);
-        if (!storageItemRes.isSuccess()) {
-            throw new IllegalArgumentException("Failed to create StorageItem: " + storageItemRes.getErrorMessage());
-        }
-        StorageItem storageItem = storageItemRes.getData();
-
-        Optional<StorageItemAttachment> attachmentOpt = storageItemAttachmentRepository
-                .findById(message.getAttachmentId());
-        if (!attachmentOpt.isPresent()) {
-            throw new IllegalArgumentException("Attachment not found with ID: " + message.getAttachmentId());
-        }
-        StorageItemAttachment attachment = attachmentOpt.get();
-
-        // save item
-        storageItem.setStorageSection(section);
-        storageItem.getAttachments().add(attachment);
-        StorageItem savedItem = storageItemRepository.save(storageItem);
-        // update section
-        section.getStorageItems().add(savedItem);
-        storageSectionRepository.save(section);
-        // update attachment
-        attachment.setStorageItem(savedItem);
-        attachment.setStatus(AttachmentStatus.COMPLETED);
-        storageItemAttachmentRepository.save(attachment);
-
-        logger.info("Successfully processed document for attachment ID: {}", message.getAttachmentId());
     }
 
     private void markAttachmentAsFailed(Long attachmentId, String errorMessage) {

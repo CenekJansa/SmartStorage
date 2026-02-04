@@ -1,10 +1,14 @@
 package com.example.SecureStorage.domain.controller;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemResultVo;
+
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 public class StorageItemControllerKit {
@@ -30,13 +34,18 @@ public class StorageItemControllerKit {
     // Mappers
 
     public static class StorageItemResultMapper {
-        public static StorageItemResult mapFrom(
-                com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemResultVo vo) {
+        public static StorageItemResult mapFrom(@NonNull StorageItemResultVo vo) {
             Map<String, Object> sourceMetadata = vo.getMetadata();
-            Map<String, String> stringMetadata = sourceMetadata.entrySet().stream()
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            entry -> entry.getValue() != null ? entry.getValue().toString() : null));
+            Map<String, String> stringMetadata = null;
+            if (sourceMetadata == null) {
+                stringMetadata = Collections.emptyMap();
+            } else {
+                stringMetadata = sourceMetadata.entrySet().stream()
+                        .filter(entry -> entry.getValue() != null)
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry -> entry.getValue().toString()));
+            }
             return StorageItemResult.builder()
                     .id(vo.getId())
                     .name(vo.getName())
