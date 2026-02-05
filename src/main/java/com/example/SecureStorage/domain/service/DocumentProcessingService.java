@@ -1,6 +1,7 @@
 package com.example.SecureStorage.domain.service;
 
-import com.example.SecureStorage.infrastructure.AiGateway;
+import com.example.SecureStorage.infrastructure.PdfTextExtractionService;
+import com.example.SecureStorage.infrastructure.ai.AiGateway;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

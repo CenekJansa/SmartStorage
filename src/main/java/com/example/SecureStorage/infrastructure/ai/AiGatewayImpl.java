@@ -1,10 +1,7 @@
-package com.example.SecureStorage.infrastructure;
+package com.example.SecureStorage.infrastructure.ai;
 
 import com.example.SecureStorage.commons.OperationResult;
-import com.example.SecureStorage.infrastructure.ai.AiPromptBuilder;
-import com.example.SecureStorage.infrastructure.ai.AiResponseCleaner;
-import com.example.SecureStorage.infrastructure.ai.AiResponseValidator;
-import com.example.SecureStorage.infrastructure.config.AiPromptConfig;
+import com.example.SecureStorage.config.AiPromptConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;

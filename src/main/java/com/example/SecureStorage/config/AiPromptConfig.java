@@ -1,4 +1,4 @@
-package com.example.SecureStorage.infrastructure.config;
+package com.example.SecureStorage.config;
 
 import lombok.Getter;
 import lombok.Setter;

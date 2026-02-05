@@ -1,4 +1,4 @@
-package com.example.SecureStorage.domain.service;
+package com.example.SecureStorage.infrastructure.storage;
 
 import java.io.ByteArrayInputStream;
 

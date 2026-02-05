@@ -1,4 +1,4 @@
-package com.example.SecureStorage.infrastructure;
+package com.example.SecureStorage.infrastructure.ai;
 
 import com.example.SecureStorage.commons.OperationResult;
 import java.util.List;

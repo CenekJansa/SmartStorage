@@ -1,5 +1,6 @@
 package com.example.SecureStorage.domain.service;
 
+import com.example.SecureStorage.infrastructure.storage.MinioService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

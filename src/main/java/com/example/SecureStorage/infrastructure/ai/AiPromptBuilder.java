@@ -1,7 +1,7 @@
 package com.example.SecureStorage.infrastructure.ai;
 
 import com.example.SecureStorage.commons.OperationResult;
-import com.example.SecureStorage.infrastructure.config.AiPromptConfig;
+import com.example.SecureStorage.config.AiPromptConfig;
 
 import java.util.List;
 

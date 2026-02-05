@@ -1,4 +1,4 @@
-package com.example.SecureStorage.domain.service;
+package com.example.SecureStorage.infrastructure;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
