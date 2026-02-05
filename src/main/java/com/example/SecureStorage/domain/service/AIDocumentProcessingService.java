@@ -17,25 +17,30 @@ public class AIDocumentProcessingService {
     @Autowired
     private ChatClient.Builder chatClientBuilder;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private static final String MARKDOWN_JSON_PREFIX = "```json";
+    private static final String MARKDOWN_PREFIX = "```";
 
     /**
      * Process a PDF document using AI to extract structured data
-     * 
+     *
      * @param pdfText           the extracted text from the PDF
      * @param sectionAttributes the list of attributes for the section
      * @return Map containing "name" (String) and "metadata" (Map<String, String>)
      */
-    public OperationResult<Map<String, Object>> processDocument(String pdfText, List<String> sectionAttributes) {
+    public OperationResult<Map<String, Object>> processDocument(String pdfText,
+                                                                List<String> sectionAttributes) {
         try {
             String prompt = buildPrompt(pdfText, sectionAttributes);
             ChatClient chatClient = chatClientBuilder.build();
             log.info("Sending prompt to AI: {}", prompt);
-             String aiResponse = chatClient.prompt()
-             .user(prompt)
-             .call()
-             .content();
-             if (aiResponse == null || aiResponse.isEmpty()) {
+            String aiResponse = chatClient.prompt()
+                .user(prompt)
+                .call()
+                .content();
+            if (aiResponse == null || aiResponse.isEmpty()) {
                 return OperationResult.error("AI response is empty");
             }
             log.info("AI response: {}", aiResponse);
@@ -53,12 +58,14 @@ public class AIDocumentProcessingService {
      */
     private String buildPrompt(String pdfText, List<String> sectionAttributes) {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("Your task is to read content of the document and create a json object from it.\n\n");
+        prompt.append(
+            "Your task is to read content of the document and create a json object from it.\n\n");
         prompt.append("The content of the file:\n");
         prompt.append("///\n");
         prompt.append(pdfText);
         prompt.append("\n///\n\n");
-        prompt.append("Based on the file fill in the json object. Pay attention to the data types.\n\n");
+        prompt.append(
+            "Based on the file fill in the json object. Pay attention to the data types.\n\n");
         prompt.append("The section has the following attributes: ");
         prompt.append(String.join(", ", sectionAttributes));
         prompt.append("\n\n");
@@ -80,7 +87,7 @@ public class AIDocumentProcessingService {
         prompt.append("    }\n");
         prompt.append("}\n\n");
         prompt.append(
-                "Return ONLY the JSON object, no additional text or explanation. The JSON response must be bounded by characters |||\n");
+            "Return ONLY the JSON object, no additional text or explanation. The JSON response must be bounded by characters |||\n");
         prompt.append("For example: ||| { \"name\": \"...\", \"metadata\": { ... } } |||");
         return prompt.toString();
     }
@@ -92,32 +99,32 @@ public class AIDocumentProcessingService {
         String cleanedResponse = aiResponse.trim();
         final String BOUNDARY = "|||";
 
-        // 1. Clean the response - remove the expected "|||" boundaries
         if (cleanedResponse.startsWith(BOUNDARY)) {
             cleanedResponse = cleanedResponse.substring(BOUNDARY.length()).trim();
         }
         if (cleanedResponse.endsWith(BOUNDARY)) {
-            cleanedResponse = cleanedResponse.substring(0, cleanedResponse.length() - BOUNDARY.length()).trim();
+            cleanedResponse =
+                cleanedResponse.substring(0, cleanedResponse.length() - BOUNDARY.length()).trim();
         }
 
         // 2. Clean the response - remove markdown code blocks if present (for
         // robustness)
-        if (cleanedResponse.startsWith("```json")) {
+        if (cleanedResponse.startsWith(MARKDOWN_JSON_PREFIX)) {
             cleanedResponse = cleanedResponse.substring(7);
         }
-        if (cleanedResponse.startsWith("```")) {
+        if (cleanedResponse.startsWith(MARKDOWN_PREFIX)) {
             cleanedResponse = cleanedResponse.substring(3);
         }
-        if (cleanedResponse.endsWith("```")) {
+        if (cleanedResponse.endsWith(MARKDOWN_PREFIX)) {
             cleanedResponse = cleanedResponse.substring(0, cleanedResponse.length() - 3);
         }
         cleanedResponse = cleanedResponse.trim();
 
         // Parse JSON
         Map<String, Object> parsed = objectMapper.readValue(
-                cleanedResponse,
-                new TypeReference<Map<String, Object>>() {
-                });
+            cleanedResponse,
+            new TypeReference<Map<String, Object>>() {
+            });
 
         log.info("Parsed AI response: {}", parsed);
 

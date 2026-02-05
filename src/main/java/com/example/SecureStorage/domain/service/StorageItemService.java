@@ -9,8 +9,8 @@ import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageIte
 
 public interface StorageItemService {
     
-    OperationResult<Long> uploadFile(Long sectionId,
-         String fileName, byte[] fileData);
+    OperationResult<Long> uploadFile(@NotNull Long sectionId,
+         @NotNull String fileName, @NotNull byte[] fileData);
 
     List<StorageItemResultVo> retrieveStorageItems(@NotNull Long sectionId);
 }

@@ -25,7 +25,7 @@ import com.example.SecureStorage.messaging.DocumentProcessingMessage;
 import com.example.SecureStorage.messaging.DocumentProcessingProducer;
 
 @Service
-public class StorageItemSericeImpl implements StorageItemService {
+public class StorageItemServiceImpl implements StorageItemService {
 
     @Autowired
     private StorageSectionRepository storageSectionRepository;

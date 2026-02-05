@@ -12,9 +12,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder
+@NoArgsConstructor
 @Entity
 @Getter
 @Setter
@@ -23,11 +28,14 @@ public class StorageSection extends BaseEntity {
     private String name;
     @Column(name = "attributes_json", columnDefinition = "TEXT")
     @Convert(converter = JsonListConverter.class)
+    @Builder.Default
     private List<String> attributes = new ArrayList<>();
     @Column(name = "unique_keys_json", columnDefinition = "TEXT")
     @Convert(converter = JsonListConverter.class)
+    @Builder.Default
     private List<String> uniqueKeys = new ArrayList<>();
     @OneToMany(mappedBy = "storageSection",
      cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<StorageItem> storageItems = new HashSet<>();
 }

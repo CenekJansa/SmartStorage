@@ -16,9 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -71,18 +68,18 @@ public class DocumentProcessingConsumer {
             log.info("Found section '{}' with {} attributes", section.getName(),
                 sectionAttributes.size());
 
-            OperationResult<Map<String, Object>> aiResultRes =
+            OperationResult<Map<String, Object>> aiMapRes =
                 aiDocumentProcessingService.processDocument(pdfText, sectionAttributes);
-            if (!aiResultRes.isSuccess()) {
-                markAttachmentAsFailed(message.getAttachmentId(), aiResultRes.getErrorMessage());
+            if (!aiMapRes.isSuccess()) {
+                markAttachmentAsFailed(message.getAttachmentId(), aiMapRes.getErrorMessage());
                 return;
             }
-            Map<String, Object> aiResult = aiResultRes.getData();
+            Map<String, Object> aiMap = aiMapRes.getData();
 
             log.info("AI processing completed successfully");
 
             OperationResult<StorageItem> storageItemRes =
-                StorageItemFactory.createStorageItemFromAttachment(aiResult);
+                StorageItemFactory.createStorageItemFromAttachment(aiMap);
             if (!storageItemRes.isSuccess()) {
                 markAttachmentAsFailed(message.getAttachmentId(),
                     "Failed to create StorageItem: " + storageItemRes.getErrorMessage());
