@@ -1,16 +1,38 @@
 # SmartStorage
 
-AI powered storage application.
+AI powered document management application.
 
 ## TechStack
 
-PostgreDB
-Weaviate
-SpringBoot
-MinIO
+PostgreDB   
+SpringAI   
+MinIO   
+GraphQL   
 Docker
+RabbitMQ
+Java 25.0.2
 
-## Assignment
+## Description
+
+(Vision)
+The application will be able to automatically mine user defined data from uploaded documents. 
+User defines Storage Section which stores as many attributes as user wants to be extracted from the document. This is the
+only thing the user needs to do before he starts throwing documents at the application.
+Applications upload endpoint will save the file in original form into MinIO storage. 
+Right after that the application fill out an Storage Item object with the data extracted from the document.
+
+Uploaded files are linked to Storege Item. the item can hole multiple files. This is possible because when creating a new
+Storage Section, user can select fields, in the variable array of atributes, that has to be unique. Based on this information
+the application detects common Storage Item between multiple uploaded documents.
+
+for example: a document about car insurance and a document about car service can be linked together because they both
+have a licence plate number which is unique to the car.
+
+## Scope of application
+
+The application
+
+## W
 
 ### AI based document parsing
 Application will enable to store pdf documents. These pdf files will be parsed into table record.
