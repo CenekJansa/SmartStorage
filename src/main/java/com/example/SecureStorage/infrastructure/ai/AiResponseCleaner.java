@@ -26,18 +26,17 @@ public final class AiResponseCleaner {
         if (response == null || response.isEmpty()) {
             return OperationResult.error("AI response is null or empty");
         }
-        try {
-            String cleaned = response.trim();
-            cleaned = removeBoundaries(cleaned, boundary);
-            cleaned = removeMarkdown(cleaned, markdownJsonPrefix, markdownPrefix);
-            cleaned = cleaned.trim();
-            if (cleaned.isEmpty()) {
-                return OperationResult.error("Cleaned response is empty");
-            }
-            return OperationResult.success(cleaned);
-        } catch (Exception e) {
-            return OperationResult.error("Failed to clean AI response: " + e.getMessage());
+
+        String cleaned = response.trim();
+        cleaned = removeBoundaries(cleaned, boundary);
+        cleaned = removeMarkdown(cleaned, markdownJsonPrefix, markdownPrefix);
+        cleaned = cleaned.trim();
+
+        if (cleaned.isEmpty()) {
+            return OperationResult.error("Cleaned response is empty");
         }
+
+        return OperationResult.success(cleaned);
     }
 
     /**

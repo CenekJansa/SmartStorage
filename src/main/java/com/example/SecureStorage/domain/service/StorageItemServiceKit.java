@@ -25,14 +25,15 @@ public class StorageItemServiceKit {
 
     public static class StorageItemResultVoMapper {
         public static StorageItemResultVo mapFrom(@NotNull StorageItem item) {
-            if (item.getMetadata() == null) {
-                throw new IllegalArgumentException(
-                    "Metadata in StorageItem cannot be null");
+            // Handle null metadata gracefully by using empty map
+            Map<String, Object> metadata = item.getMetadata();
+            if (metadata == null) {
+                metadata = new java.util.HashMap<>();
             }
             return StorageItemResultVo.builder()
                 .id(item.getId())
                 .name(item.getName())
-                .metadata(item.getMetadata())
+                .metadata(metadata)
                 .build();
         }
     }

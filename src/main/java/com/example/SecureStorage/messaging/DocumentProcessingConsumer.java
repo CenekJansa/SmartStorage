@@ -45,20 +45,18 @@ public class DocumentProcessingConsumer {
         }
 
         // Delegate to service
-        try {
-            OperationResult<Void> processingResult = documentProcessingService.processDocument(
-                message.getFileData(),
-                message.getSectionId(),
-                message.getAttachmentId()
-            );
+        OperationResult<Void> processingResult = documentProcessingService.processDocument(
+            message.getFileData(),
+            message.getSectionId(),
+            message.getAttachmentId()
+        );
 
-            if (!processingResult.isSuccess()) {
-                log.error("Document processing failed for attachmentId {}: {}",
-                    message.getAttachmentId(), processingResult.getErrorMessage());
-            }
-        } catch (Exception e) {
-            log.error("Unexpected error processing document for attachmentId {}: {}",
-                message.getAttachmentId(), e.getMessage(), e);
+        if (!processingResult.isSuccess()) {
+            log.error("Document processing failed for attachmentId {}: {}",
+                message.getAttachmentId(), processingResult.getErrorMessage());
+        } else {
+            log.info("Document processing completed successfully for attachmentId: {}",
+                message.getAttachmentId());
         }
     }
 

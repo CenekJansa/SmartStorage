@@ -26,40 +26,42 @@ import lombok.extern.slf4j.Slf4j;
 public class StorageItemController {
 
     @Autowired
-    private StorageItemService storageItemService;;
+    private StorageItemService storageItemService;
 
     @MutationMapping
     public UploadResult uploadDocument(@Argument @NotNull Long sectionId, @Argument MultipartFile file) {
         log.info("Uploading file: {}", file.getOriginalFilename());
+        String fileName;
+        byte[] fileData;
         try {
-            String fileName = file.getOriginalFilename();
-            if (fileName == null || fileName.isEmpty()) {
-                UploadResult errorResult = new UploadResult();
-                errorResult.setSuccess(false);
-                errorResult.setErrorMessage("File name is missing");
-                return errorResult;
-            }
-            byte[] fileData = file.getBytes();
-
-            OperationResult<Long> result
-             = storageItemService.uploadFile(sectionId, fileName, fileData);
-
-            UploadResult uploadResult = new UploadResult();
-            uploadResult.setSuccess(result.isSuccess());
-
-            if (result.isSuccess()) {
-                uploadResult.setAttachmentId(result.getData());
-            } else {
-                uploadResult.setErrorMessage(result.getErrorMessage());
-            }
-
-            return uploadResult;
-        } catch (IOException e) {
+            fileName = file.getOriginalFilename();
+            fileData = file.getBytes();
+        } catch (Exception e) {
             UploadResult errorResult = new UploadResult();
             errorResult.setSuccess(false);
             errorResult.setErrorMessage("Failed to read file: " + e.getMessage());
             return errorResult;
         }
+        if (fileName == null || fileName.isEmpty()) {
+            UploadResult errorResult = new UploadResult();
+            errorResult.setSuccess(false);
+            errorResult.setErrorMessage("File name is missing");
+            return errorResult;
+        }
+
+        OperationResult<Long> result
+         = storageItemService.uploadFile(sectionId, fileName, fileData);
+
+        UploadResult uploadResult = new UploadResult();
+        uploadResult.setSuccess(result.isSuccess());
+
+        if (result.isSuccess()) {
+            uploadResult.setAttachmentId(result.getData());
+        } else {
+            uploadResult.setErrorMessage(result.getErrorMessage());
+        }
+
+        return uploadResult;
     }
 
     @QueryMapping
