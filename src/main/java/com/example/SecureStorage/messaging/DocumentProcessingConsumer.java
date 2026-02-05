@@ -11,6 +11,7 @@ import com.example.SecureStorage.domain.repository.StorageItemAttachmentReposito
 import com.example.SecureStorage.domain.repository.StorageItemRepository;
 import com.example.SecureStorage.domain.repository.StorageSectionRepository;
 import com.example.SecureStorage.domain.service.AIDocumentProcessingService;
+import com.example.SecureStorage.utils.PdfTextExtractor;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,8 +49,9 @@ public class DocumentProcessingConsumer {
     @Transactional
     public void processDocument(DocumentProcessingMessage message) {
         try {
-            OperationResult<String> pdfTextRes = extractTextFromPDF(message.getFileData());
+            OperationResult<String> pdfTextRes = PdfTextExtractor.extractTextFromPdf(message.getFileData());
             if (!pdfTextRes.isSuccess()) {
+                log.error("Failed to extract text from PDF: {}", pdfTextRes.getErrorMessage());
                 markAttachmentAsFailed(message.getAttachmentId(), pdfTextRes.getErrorMessage());
                 return;
             }
@@ -178,23 +180,5 @@ public class DocumentProcessingConsumer {
         StorageItemAttachment attachment = attachmentOpt.get();
         attachment.setStatus(AttachmentStatus.FAILED);
         storageItemAttachmentRepository.save(attachment);
-    }
-
-    /**
-     * Extract text from PDF using PDFBox
-     *
-     * @param pdfData the PDF file data
-     * @return extracted text
-     * @throws Exception if PDF extraction fails
-     */
-    private OperationResult<String> extractTextFromPDF(byte[] pdfData) {
-        try (PDDocument document = Loader.loadPDF(pdfData)) {
-            PDFTextStripper stripper = new PDFTextStripper();
-            String text = stripper.getText(document);
-            return OperationResult.success(text);
-        } catch (Exception e) {
-            log.error("Failed to extract text from PDF", e);
-            return OperationResult.error("PDF text extraction failed: " + e.getMessage());
-        }
     }
 }
