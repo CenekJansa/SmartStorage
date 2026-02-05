@@ -24,7 +24,7 @@ public interface StorageItemRepository extends JpaRepository<StorageItem, Long> 
      */
     @Query(value = "SELECT * FROM storage_item " +
                    "WHERE storage_section_id = :sectionId " +
-                   "AND metadata_json->>:attributeKey = :attributeValue " +
+                   "AND (metadata_json->>CAST(:attributeKey AS TEXT)) = CAST(:attributeValue AS TEXT) " +
                    "LIMIT 1",
            nativeQuery = true)
     Optional<StorageItem> findByMetadataAttribute(

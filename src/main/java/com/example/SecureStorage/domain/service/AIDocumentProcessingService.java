@@ -1,17 +1,14 @@
 package com.example.SecureStorage.domain.service;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.example.SecureStorage.commons.OperationResult;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
@@ -28,34 +25,19 @@ public class AIDocumentProcessingService {
      * @param pdfText           the extracted text from the PDF
      * @param sectionAttributes the list of attributes for the section
      * @return Map containing "name" (String) and "metadata" (Map<String, String>)
-     * @throws Exception if AI processing fails
      */
     public OperationResult<Map<String, Object>> processDocument(String pdfText, List<String> sectionAttributes) {
         try {
             String prompt = buildPrompt(pdfText, sectionAttributes);
             ChatClient chatClient = chatClientBuilder.build();
             log.info("Sending prompt to AI: {}", prompt);
-            // String aiResponse = chatClient.prompt()
-            // .user(prompt)
-            // .call()
-            // .content();
-            String aiResponse = """
-                                         |||
-                    {
-                        "name": "Motor Vehicle",
-                        "metadata": {
-                            "Brand": "ŠKODA",
-                            "Model": "Octavia Combi 1.5 TSI",
-                            "Year of Manufacture": "2025",
-                            "VIN": "TMBJR8NX9SY012345",
-                            "Registration Number": null,
-                            "Next Technical Check": null,
-                            "Ownership Status": "New and Unregistered",
-                            "toll stamp expiry date": null
-                        }
-                    }
-                    |||
-                                        """;
+             String aiResponse = chatClient.prompt()
+             .user(prompt)
+             .call()
+             .content();
+             if (aiResponse == null || aiResponse.isEmpty()) {
+                return OperationResult.error("AI response is empty");
+            }
             log.info("AI response: {}", aiResponse);
             Map<String, Object> result = parseAIResponse(aiResponse);
             log.info("AI processing completed successfully: {}", result);

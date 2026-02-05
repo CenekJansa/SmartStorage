@@ -88,29 +88,34 @@ public class DocumentProcessingConsumer {
                 return;
             }
             StorageItem storageItem = storageItemRes.getData();
+            Map<String, Object> metadata = storageItem.getMetadata();
 
             // look for duplicates
             logger.info("Looking for duplicates for unique keys: {}", uniqueKeys);
             for (String uniqueKey : uniqueKeys) {
-                String aiResultStr;
-                if (aiResult.get(uniqueKey) == null) {
-                    aiResultStr = "";
+                Object metadataValue = metadata.get(uniqueKey);
+                String keyValueStr;
+                if (metadataValue == null) {
+                    keyValueStr = "";
                 } else {
-                    aiResultStr = aiResult.get(uniqueKey).toString();
+                    keyValueStr = metadataValue.toString();
                 }
+                logger.info("Searching for duplicate with key='{}', value='{}' in section {}",
+                    uniqueKey, keyValueStr, section.getId());
                 Optional<StorageItem> existingItemOpt = storageItemRepository.findByMetadataAttribute(
-                    section.getId(), 
-                    uniqueKey, 
-                    aiResultStr
+                    section.getId(),
+                    uniqueKey,
+                    keyValueStr
                 );
                 if (existingItemOpt.isPresent()) {
-                    log.info("Duplicate item found for unique key '{}' with value '{}'", uniqueKey, aiResult.get(uniqueKey).toString());
+                    log.info("Duplicate item found for unique key '{}' with value '{}'", uniqueKey, keyValueStr);
                     mergeItems(existingItemOpt.get(), storageItem, message.getAttachmentId());
                     return;
+                } else {
+                    logger.info("No duplicate found for key='{}', value='{}'", uniqueKey, keyValueStr);
                 }
-            
             }
-
+            log.info("No duplicates found");
             Optional<StorageItemAttachment> attachmentOpt = storageItemAttachmentRepository
                     .findById(message.getAttachmentId());
             if (!attachmentOpt.isPresent()) {
