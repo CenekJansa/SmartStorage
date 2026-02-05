@@ -1,19 +1,5 @@
 package com.example.SecureStorage.messaging;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.example.SecureStorage.commons.OperationResult;
 import com.example.SecureStorage.config.RabbitMQConfig;
 import com.example.SecureStorage.domain.entity.AttachmentStatus;
@@ -25,14 +11,21 @@ import com.example.SecureStorage.domain.repository.StorageItemAttachmentReposito
 import com.example.SecureStorage.domain.repository.StorageItemRepository;
 import com.example.SecureStorage.domain.repository.StorageSectionRepository;
 import com.example.SecureStorage.domain.service.AIDocumentProcessingService;
-
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Slf4j
 public class DocumentProcessingConsumer {
-
-    private static final Logger logger = LoggerFactory.getLogger(DocumentProcessingConsumer.class);
 
     @Autowired
     private StorageSectionRepository storageSectionRepository;
@@ -48,7 +41,7 @@ public class DocumentProcessingConsumer {
 
     /**
      * Process document asynchronously using AI
-     * 
+     *
      * @param message the document processing message from RabbitMQ
      */
     @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
@@ -61,37 +54,43 @@ public class DocumentProcessingConsumer {
                 return;
             }
             String pdfText = pdfTextRes.getData();
-            logger.info("Extracted {} characters from PDF", pdfText.length());
+            log.info("Extracted {} characters from PDF", pdfText.length());
 
-            Optional<StorageSection> sectionOpt = storageSectionRepository.findById(message.getSectionId());
+            Optional<StorageSection> sectionOpt =
+                storageSectionRepository.findById(message.getSectionId());
             if (!sectionOpt.isPresent()) {
-                markAttachmentAsFailed(message.getAttachmentId(), "StorageSection not found with ID: " + message.getSectionId());
+                markAttachmentAsFailed(message.getAttachmentId(),
+                    "StorageSection not found with ID: " + message.getSectionId());
                 return;
             }
             StorageSection section = sectionOpt.get();
             List<String> uniqueKeys = section.getUniqueKeys();
             List<String> sectionAttributes = section.getAttributes();
-            logger.info("Found section '{}' with {} attributes", section.getName(), sectionAttributes.size());
+            log.info("Found section '{}' with {} attributes", section.getName(),
+                sectionAttributes.size());
 
-            OperationResult<Map<String, Object>> aiResultRes = aiDocumentProcessingService.processDocument(pdfText, sectionAttributes);
+            OperationResult<Map<String, Object>> aiResultRes =
+                aiDocumentProcessingService.processDocument(pdfText, sectionAttributes);
             if (!aiResultRes.isSuccess()) {
                 markAttachmentAsFailed(message.getAttachmentId(), aiResultRes.getErrorMessage());
                 return;
             }
             Map<String, Object> aiResult = aiResultRes.getData();
 
-            logger.info("AI processing completed successfully");
+            log.info("AI processing completed successfully");
 
-            OperationResult<StorageItem> storageItemRes = StorageItemFactory.createStorageItemFromAttachment(aiResult);
+            OperationResult<StorageItem> storageItemRes =
+                StorageItemFactory.createStorageItemFromAttachment(aiResult);
             if (!storageItemRes.isSuccess()) {
-                markAttachmentAsFailed(message.getAttachmentId(), "Failed to create StorageItem: " + storageItemRes.getErrorMessage());
+                markAttachmentAsFailed(message.getAttachmentId(),
+                    "Failed to create StorageItem: " + storageItemRes.getErrorMessage());
                 return;
             }
             StorageItem storageItem = storageItemRes.getData();
             Map<String, Object> metadata = storageItem.getMetadata();
 
             // look for duplicates
-            logger.info("Looking for duplicates for unique keys: {}", uniqueKeys);
+            log.info("Looking for duplicates for unique keys: {}", uniqueKeys);
             for (String uniqueKey : uniqueKeys) {
                 Object metadataValue = metadata.get(uniqueKey);
                 String keyValueStr;
@@ -100,47 +99,48 @@ public class DocumentProcessingConsumer {
                 } else {
                     keyValueStr = metadataValue.toString();
                 }
-                logger.info("Searching for duplicate with key='{}', value='{}' in section {}",
+                log.info("Searching for duplicate with key='{}', value='{}' in section {}",
                     uniqueKey, keyValueStr, section.getId());
-                Optional<StorageItem> existingItemOpt = storageItemRepository.findByMetadataAttribute(
-                    section.getId(),
-                    uniqueKey,
-                    keyValueStr
-                );
+                Optional<StorageItem> existingItemOpt =
+                    storageItemRepository.findByMetadataAttribute(
+                        section.getId(),
+                        uniqueKey,
+                        keyValueStr
+                    );
                 if (existingItemOpt.isPresent()) {
-                    log.info("Duplicate item found for unique key '{}' with value '{}'", uniqueKey, keyValueStr);
+                    log.info("Duplicate item found for unique key '{}' with value '{}'", uniqueKey,
+                        keyValueStr);
                     mergeItems(existingItemOpt.get(), storageItem, message.getAttachmentId());
                     return;
                 } else {
-                    logger.info("No duplicate found for key='{}', value='{}'", uniqueKey, keyValueStr);
+                    log.info("No duplicate found for key='{}', value='{}'", uniqueKey,
+                        keyValueStr);
                 }
             }
             log.info("No duplicates found");
             Optional<StorageItemAttachment> attachmentOpt = storageItemAttachmentRepository
-                    .findById(message.getAttachmentId());
+                .findById(message.getAttachmentId());
             if (!attachmentOpt.isPresent()) {
-                markAttachmentAsFailed(message.getAttachmentId(), "Attachment not found with ID: " + message.getAttachmentId());
+                markAttachmentAsFailed(message.getAttachmentId(),
+                    "Attachment not found with ID: " + message.getAttachmentId());
                 return;
             }
             StorageItemAttachment attachment = attachmentOpt.get();
 
             // save item
             storageItem.setStorageSection(section);
-            // Note: Don't add attachment to storageItem.attachments - relationship is managed by attachment.setStorageItem()
             StorageItem savedItem = storageItemRepository.save(storageItem);
-            // update section
-            section.getStorageItems().add(savedItem);
-            storageSectionRepository.save(section);
             // update attachment
             attachment.setStorageItem(savedItem);
             attachment.setStatus(AttachmentStatus.COMPLETED);
             storageItemAttachmentRepository.save(attachment);
 
-            logger.info("Successfully processed document for attachment ID: {}", message.getAttachmentId());
+            log.info("Successfully processed document for attachment ID: {}",
+                message.getAttachmentId());
         } catch (Exception e) {
-            logger.error("Failed to process document for attachment ID: {}", message.getAttachmentId(), e);
+            log.error("Failed to process document for attachment ID: {}",
+                message.getAttachmentId(), e);
             markAttachmentAsFailed(message.getAttachmentId(), e.getMessage());
-            // Don't rethrow - message will be acknowledged and removed from queue
         }
     }
 
@@ -153,7 +153,13 @@ public class DocumentProcessingConsumer {
                 existingMetadata.put(key, newMetadata.get(key));
             }
         }
-        StorageItemAttachment attachment = storageItemAttachmentRepository.findById(attachmentId).get();
+        Optional<StorageItemAttachment> attachmentOpt = storageItemAttachmentRepository
+            .findById(attachmentId);
+        if (!attachmentOpt.isPresent()) {
+            log.error("Attachment not found with ID: {}", attachmentId);
+            return;
+        }
+        StorageItemAttachment attachment = attachmentOpt.get();
         attachment.setStorageItem(existingItem);
         storageItemAttachmentRepository.save(attachment);
         existingItem.setMetadata(existingMetadata);
@@ -161,11 +167,12 @@ public class DocumentProcessingConsumer {
     }
 
     private void markAttachmentAsFailed(Long attachmentId, String errorMessage) {
-        logger.error("Failed to process document for attachment ID: {}", attachmentId, errorMessage);
+        log.error("Failed to process document for attachment ID: {}", attachmentId,
+            errorMessage);
         Optional<StorageItemAttachment> attachmentOpt = storageItemAttachmentRepository
-                .findById(attachmentId);
+            .findById(attachmentId);
         if (!attachmentOpt.isPresent()) {
-            logger.error("Attachment not found with ID: {}", attachmentId);
+            log.error("Attachment not found with ID: {}", attachmentId);
             return;
         }
         StorageItemAttachment attachment = attachmentOpt.get();
@@ -186,7 +193,7 @@ public class DocumentProcessingConsumer {
             String text = stripper.getText(document);
             return OperationResult.success(text);
         } catch (Exception e) {
-            logger.error("Failed to extract text from PDF", e);
+            log.error("Failed to extract text from PDF", e);
             return OperationResult.error("PDF text extraction failed: " + e.getMessage());
         }
     }

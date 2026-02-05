@@ -19,8 +19,14 @@ public class StorageItemFactory {
         if (!attachmentData.containsKey("metadata")) {
             return OperationResult.error("Attachment data missing 'metadata' field");
         }
-        
-        String name = (String) attachmentData.get("name");
+        Object nameObj = attachmentData.get("name");
+        if (!(nameObj instanceof String)) {
+            return OperationResult.error("Invalid 'name' field");
+        }
+        String name = (String) nameObj;
+        if (name.trim().isEmpty()) {
+            return OperationResult.error("'name' field cannot be empty");
+        }
         Map<String, Object> metadataObj;
         try {
             metadataObj = (Map<String, Object>) attachmentData.get("metadata");

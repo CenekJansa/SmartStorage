@@ -33,6 +33,12 @@ public class StorageItemController {
         log.info("Uploading file: {}", file.getOriginalFilename());
         try {
             String fileName = file.getOriginalFilename();
+            if (fileName == null || fileName.isEmpty()) {
+                UploadResult errorResult = new UploadResult();
+                errorResult.setSuccess(false);
+                errorResult.setErrorMessage("File name is missing");
+                return errorResult;
+            }
             byte[] fileData = file.getBytes();
 
             OperationResult<Long> result
@@ -60,10 +66,9 @@ public class StorageItemController {
     public List<StorageItemResult> retrieveStorageItems(@Argument @NotNull Long sectionId) {
         log.info("Retrieving storage items for sectionId: {}", sectionId);
         List<StorageItemResultVo> resultVos = storageItemService.retrieveStorageItems(sectionId);
-        List<StorageItemResult> result = resultVos.stream()
+        return resultVos.stream()
             .map(StorageItemResultMapper::mapFrom)
             .toList();
-        return result;
     } 
 
     @QueryMapping
