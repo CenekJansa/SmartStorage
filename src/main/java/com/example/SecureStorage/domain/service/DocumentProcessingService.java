@@ -1,5 +1,6 @@
 package com.example.SecureStorage.domain.service;
 
+import com.example.SecureStorage.infrastructure.AiGateway;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class DocumentProcessingService {
     private PdfTextExtractionService pdfTextExtractionService;
 
     @Autowired
-    private AIDocumentProcessingService aiDocumentProcessingService;
+    private AiGateway aiGateway;
 
     /**
      * Process a document by extracting text, using AI to parse it, and creating a storage item.
@@ -80,7 +81,7 @@ public class DocumentProcessingService {
 
         // Step 3: Process document with AI
         OperationResult<Map<String, Object>> aiResult =
-            aiDocumentProcessingService.processDocument(pdfText, section.getAttributes());
+            aiGateway.extractAttributesFromText(pdfText, section.getAttributes());
         if (!aiResult.isSuccess()) {
             markAttachmentAsFailed(attachmentId, aiResult.getErrorMessage());
             return OperationResult.error(aiResult.getErrorMessage());
