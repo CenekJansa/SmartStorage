@@ -4,8 +4,8 @@ AI powered document management application.
 
 ## TechStack
 
-Java 25.0.2
-Postgres 
+Java 25.0.2  
+Postgres    
 SpringAI   
 MinIO   
 GraphQL   
@@ -31,7 +31,7 @@ have a licence plate number which is unique to the car.
 
 Application is not complete or even usable. 
 Code shows the main selling point of this project and that is to take a document,
-transform it into a text and send it AI model that will transform it into organized output as defined by user.
+Transform it into a text and send it AI model that will transform it into organized output as defined by user.
 
 ## Limitations of current implementation
 
