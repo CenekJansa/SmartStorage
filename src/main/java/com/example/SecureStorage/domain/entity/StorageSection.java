@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.example.SecureStorage.utils.JsonListConverter;
+import com.example.SecureStorage.utils.StorageSectionFieldListConverter;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -28,17 +28,30 @@ public class StorageSection extends BaseEntity {
     private String name;
 
     @Column(name = "attributes_json", columnDefinition = "TEXT")
-    @Convert(converter = JsonListConverter.class)
+    @Convert(converter = StorageSectionFieldListConverter.class)
     @Builder.Default
-    private List<String> attributes = new ArrayList<>();
-
-    @Column(name = "unique_keys_json", columnDefinition = "TEXT")
-    @Convert(converter = JsonListConverter.class)
-    @Builder.Default
-    private List<String> uniqueKeys = new ArrayList<>();
+    private List<StorageSectionField> attributes = new ArrayList<>();
 
     @OneToMany(mappedBy = "storageSection",
      cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<StorageItem> storageItems = new HashSet<>();
+
+    public List<String> retrieveAttributeNames() {
+        List<String> attributeNames = new ArrayList<>();
+        for (StorageSectionField field : attributes) {
+            attributeNames.add(field.getName());
+        }
+        return attributeNames;
+    }
+
+    public List<String> retrieveIdentifiers() {
+        List<String> identifiers = new ArrayList<>();
+        for (StorageSectionField field : attributes) {
+            if (field.isIdentifier()) {
+                identifiers.add(field.getName());
+            }
+        }
+        return identifiers;
+    }
 }

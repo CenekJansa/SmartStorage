@@ -82,7 +82,7 @@ public class DocumentProcessingService {
 
         // Step 3: Process document with AI
         OperationResult<Map<String, Object>> aiResult =
-            aiGateway.extractAttributesFromText(pdfText, section.getAttributes());
+            aiGateway.extractAttributesFromText(pdfText, section.retrieveAttributeNames());
         if (!aiResult.isSuccess()) {
             markAttachmentAsFailed(attachmentId, aiResult.getErrorMessage());
             return OperationResult.error(aiResult.getErrorMessage());
@@ -115,7 +115,7 @@ public class DocumentProcessingService {
     private OperationResult<Void> handleDuplicatesAndSave(StorageItem storageItem,
                                                            StorageSection section,
                                                            Long attachmentId) {
-        List<String> uniqueKeys = section.getUniqueKeys();
+        List<String> uniqueKeys = section.retrieveIdentifiers();
         Map<String, Object> metadata = storageItem.getMetadata();
 
         // Check for duplicates based on unique keys
