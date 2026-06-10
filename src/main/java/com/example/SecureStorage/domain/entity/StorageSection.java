@@ -26,14 +26,17 @@ import lombok.experimental.SuperBuilder;
 public class StorageSection extends BaseEntity {
     @Column(nullable = false)
     private String name;
+
     @Column(name = "attributes_json", columnDefinition = "TEXT")
     @Convert(converter = JsonListConverter.class)
     @Builder.Default
     private List<String> attributes = new ArrayList<>();
+
     @Column(name = "unique_keys_json", columnDefinition = "TEXT")
     @Convert(converter = JsonListConverter.class)
     @Builder.Default
     private List<String> uniqueKeys = new ArrayList<>();
+
     @OneToMany(mappedBy = "storageSection",
      cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

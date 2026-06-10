@@ -31,14 +31,17 @@ import lombok.experimental.SuperBuilder;
 public class StorageItem extends BaseEntity {
     @Column(nullable = false)
     private String name;
+
     @OneToMany(mappedBy = "storageItem", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<StorageItemAttachment> attachments = new HashSet<>();
+
     @Convert(converter = StringMapJsonAttributeConverter.class)
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "metadata_json", columnDefinition = "jsonb")
     @Builder.Default
     private Map<String, Object> metadata = new HashMap<>();
+
     @JoinColumn(name = "storage_section_id", nullable = false)
     @ManyToOne
     private StorageSection storageSection;

@@ -20,8 +20,10 @@ public class BaseEntity {
     @Setter
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
     @Column(nullable = true)
     private LocalDateTime updatedAt;
 
