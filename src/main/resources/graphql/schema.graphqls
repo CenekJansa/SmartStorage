@@ -1,7 +1,25 @@
+enum FieldType {
+    STRING
+    DATE
+    NUMBER
+}
+
+input StorageSectionFieldInput {
+    name: String!
+    type: FieldType!
+    identifier: Boolean!
+}
+
+type StorageSectionFieldResult {
+    name: String!
+    type: FieldType!
+    identifier: Boolean!
+}
+
 type StorageSectionResult {
     id: ID!
     name: String!
-    attributes: [String!]!
+    attributes: [StorageSectionFieldResult!]!
 }
 
 type DataPair {
@@ -28,6 +46,6 @@ type Query {
 }
 
 type Mutation {
-    createStorageSection(name: String!, attributes: [String!]!): StorageSectionResult!
+    createStorageSection(name: String!, attributes: [StorageSectionFieldInput!]!): StorageSectionResult!
     uploadDocument(sectionId: ID!, file: Upload!): UploadResult!
 }

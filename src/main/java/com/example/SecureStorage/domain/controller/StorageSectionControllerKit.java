@@ -2,6 +2,7 @@ package com.example.SecureStorage.domain.controller;
 
 import java.util.List;
 
+import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionFieldResVo;
 import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionResVo;
 
 import lombok.Getter;
@@ -14,7 +15,7 @@ public class StorageSectionControllerKit {
     public static class StorageSectionResult {
         private Long id;
         private String name;
-        private List<String> attributes;
+        private List<StorageSectionFieldResVo> attributes;
     }
 
     // Mappers

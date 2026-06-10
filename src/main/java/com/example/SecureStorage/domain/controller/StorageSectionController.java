@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import com.example.SecureStorage.domain.controller.StorageSectionControllerKit.StorageSectionResult;
 import com.example.SecureStorage.domain.controller.StorageSectionControllerKit.StorageSectionResultMapper;
 import com.example.SecureStorage.domain.service.StorageSectionService;
+import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionFieldInputVo;
 import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionInputVo;
 import com.example.SecureStorage.domain.service.StorageSectionServiceKit.StorageSectionResVo;
 
@@ -31,7 +32,7 @@ public class StorageSectionController {
     */
     @MutationMapping
     public StorageSectionResult createStorageSection(@Argument @NotNull String name,
-         @Argument @NotNull List<String> attributes) {
+         @Argument @NotNull List<StorageSectionFieldInputVo> attributes) {
         StorageSectionInputVo inputVo = StorageSectionInputVo.builder()
                 .name(name)
                 .attributes(attributes)
