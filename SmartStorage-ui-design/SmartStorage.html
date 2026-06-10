@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SmartStorage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ui: "Schibsted Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --accent: #A069FF;
+  }
+
+  /* ---------- LIGHT ---------- */
+  html[data-theme="light"] {
+    --bg: oklch(0.984 0.004 295);
+    --surface: #ffffff;
+    --field: oklch(0.978 0.005 295);
+    --chip: oklch(0.965 0.006 295);
+    --thead: oklch(0.978 0.005 295);
+    --row-hover: oklch(0.972 0.012 300);
+
+    --text: #2E2E2E;
+    --text-2: #4D4D4D;
+    --text-3: oklch(0.55 0.012 295);
+    --text-4: oklch(0.68 0.01 295);
+
+    --border: oklch(0.915 0.008 295);
+    --border-2: oklch(0.86 0.012 295);
+
+    --accent-soft: color-mix(in oklch, var(--accent) 12%, #fff);
+    --accent-ink: color-mix(in oklch, var(--accent) 72%, #2E2E2E);
+
+    --ok: oklch(0.58 0.13 158);
+    --warn: oklch(0.62 0.13 70);
+    --danger: oklch(0.58 0.18 22);
+    --pdf: oklch(0.56 0.18 25);
+    --shadow-ink: oklch(0.45 0.06 295);
+  }
+
+  /* ---------- DARK ---------- */
+  html[data-theme="dark"] {
+    --bg: oklch(0.215 0.012 290);
+    --surface: oklch(0.262 0.013 290);
+    --field: oklch(0.238 0.013 290);
+    --chip: oklch(0.30 0.014 290);
+    --thead: oklch(0.276 0.013 290);
+    --row-hover: oklch(0.305 0.016 292);
+
+    --text: oklch(0.95 0.006 290);
+    --text-2: oklch(0.84 0.008 290);
+    --text-3: oklch(0.70 0.01 290);
+    --text-4: oklch(0.56 0.012 290);
+
+    --border: oklch(0.34 0.015 290);
+    --border-2: oklch(0.42 0.018 290);
+
+    --accent-soft: color-mix(in oklch, var(--accent) 24%, oklch(0.262 0.013 290));
+    --accent-ink: color-mix(in oklch, var(--accent) 58%, #fff);
+
+    --ok: oklch(0.74 0.14 158);
+    --warn: oklch(0.78 0.13 78);
+    --danger: oklch(0.70 0.16 24);
+    --pdf: oklch(0.70 0.16 28);
+    --shadow-ink: oklch(0.08 0.02 290);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--ui);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transition: background .2s ease, color .2s ease;
+  }
+  #root { min-height: 100vh; }
+  input, select, button, textarea { font-family: inherit; }
+  input::placeholder { color: var(--text-4); }
+  ::selection { background: color-mix(in oklch, var(--accent) 28%, transparent); }
+
+  /* scrollbars */
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 6px; border: 3px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-4); background-clip: content-box; }
+
+  @keyframes ss-spin { to { transform: rotate(360deg); } }
+  .ss-spin { animation: ss-spin 0.9s linear infinite; transform-origin: center; }
+
+  @keyframes ss-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ss-pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+  @keyframes ss-slide-in { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+
+  @keyframes ss-shimmer { to { background-position: 200% 0; } }
+  .ss-shimmer {
+    background: linear-gradient(90deg, var(--chip) 0%, var(--row-hover) 40%, var(--chip) 80%);
+    background-size: 200% 100%;
+    animation: ss-shimmer 1.25s ease-in-out infinite;
+  }
+
+  /* always-visible horizontal scrollbar on the data table */
+  .ss-table-wrap {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-2) transparent;
+  }
+  .ss-table-wrap::-webkit-scrollbar {
+    height: 9px;
+    display: block;
+  }
+  .ss-table-wrap::-webkit-scrollbar-track {
+    background: var(--chip);
+    border-top: 1px solid var(--border);
+  }
+  .ss-table-wrap::-webkit-scrollbar-thumb {
+    background: var(--border-2);
+    border-radius: 999px;
+    border: 2px solid var(--chip);
+    min-width: 32px;
+  }
+  .ss-table-wrap::-webkit-scrollbar-thumb:hover {
+    background: var(--text-4);
+  }
+
+  @media (max-width: 760px) {
+    .ss-detail-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#A069FF"/>
+      <g fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M50 28 L70 38 L50 48 L30 38 Z"/>
+        <path d="M30 50 L50 60 L70 50"/>
+        <path d="M30 62 L50 72 L70 62"/>
+      </g>
+    </svg>
+  </template>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script src="data.js"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="icons.jsx"></script>
+  <script type="text/babel" src="components.jsx"></script>
+  <script type="text/babel" src="HomeScreen.jsx"></script>
+  <script type="text/babel" src="CreateSectionModal.jsx"></script>
+  <script type="text/babel" src="SectionScreen.jsx"></script>
+  <script type="text/babel" src="ItemDetail.jsx"></script>
+  <script type="text/babel" src="App.jsx"></script>
+</body>
+</html>
