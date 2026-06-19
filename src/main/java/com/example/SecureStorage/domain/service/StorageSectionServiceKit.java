@@ -7,6 +7,7 @@ import com.example.SecureStorage.domain.entity.StorageSection;
 import com.example.SecureStorage.domain.entity.StorageSectionDocument;
 import com.example.SecureStorage.domain.entity.StorageSectionField;
 
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

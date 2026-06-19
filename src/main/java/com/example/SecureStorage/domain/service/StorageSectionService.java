@@ -12,4 +12,8 @@ public interface StorageSectionService {
     StorageSectionResVo createStorageSection(@NotNull StorageSectionInputVo inputVo);
 
     List<StorageSectionResVo> retrieveStorageSections();
+
+    void removeStorageSection(@NotNull Long Id);
+
+    StorageSectionResVo updateStorageSection(@NotNull Long Id, @NotNull StorageSectionInputVo inputVo);
 }

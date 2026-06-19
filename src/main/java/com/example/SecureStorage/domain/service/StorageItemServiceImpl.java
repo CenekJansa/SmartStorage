@@ -24,6 +24,8 @@ import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageIte
 import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemResultVoMapper;
 import com.example.SecureStorage.messaging.DocumentProcessingMessage;
 import com.example.SecureStorage.messaging.DocumentProcessingProducer;
+import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemDetailResultVo;
+import com.example.SecureStorage.domain.service.StorageItemServiceKit.StorageItemEditInputVo;
 
 @Service
 public class StorageItemServiceImpl implements StorageItemService {
@@ -49,7 +51,7 @@ public class StorageItemServiceImpl implements StorageItemService {
     /**
      * Method uploads a file to minIO and creates a StorageItemAttachment.
      *
-     * @param itemId   id of the item
+     * @param sectionId id of section
      * @param fileName name of the file
      * @param fileData data of the file
      * @return id of the attachment
@@ -96,6 +98,26 @@ public class StorageItemServiceImpl implements StorageItemService {
             .map(StorageItemResultVoMapper::mapFrom)
             .toList();
         return result;
+    }
+
+    @Override
+    public StorageItemDetailResultVo retrieveStorageItemDetail(Long itemId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public void removeStorageItem(Long itemId) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public StorageItemDetailResultVo editStorageItem(Long itemId, StorageItemEditInputVo inputVo) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public void removeAttachment(Long attachmentId) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
 }

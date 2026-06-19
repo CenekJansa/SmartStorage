@@ -34,4 +34,19 @@ public class StorageSectionServiceImpl implements StorageSectionService {
                 .toList();
     }
 
+    @Override
+    public StorageSectionResVo retrieveStorageSectionDetail(Long Id) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public void removeStorageSection(Long Id) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public StorageSectionResVo updateStorageSection(Long Id, StorageSectionInputVo inputVo) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
 }
